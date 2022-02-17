@@ -31,17 +31,27 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	Domain::p_Domain = this; 
 	Rank = rank;
 
+
+
 	AddEntry((char*)"TStep", &dt,	1.0);
 	AddEntry((char*)"Tmax",  &Tmax,	1.0);
 	AddEntry((char*)"Wavelength", &lambda_L,	1.0);
 
+	Log("==== Domain: Read Parameters From ini File...");
+	FILE *p_File = fopen(infile,"rt");
+	if (p_File)
+	{
+		rewind(p_File);
+		read(p_File);
+	}
+	fclose(p_File); 
 
 
-	Log("==== Create Detector...");
+	Log("==== Domain: Create Detector...");
 
 	MyDetector = new Detector((char*)"SIRC.ini");
 
-	Log("==== Read Trajectory...");
+	Log("==== Domain: Read Trajectory...");
 
 
 }

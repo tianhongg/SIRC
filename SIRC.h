@@ -38,16 +38,12 @@
 
 
 #define dcom std::complex<double>
-#define ci dcom(0.0,1.0)
-#define PI 3.1415926536
 
-
-// enum class dim
-// {
-// 	x=0,
-// 	y,
-// 	z
-// };
+namespace Constant
+{
+	const dcom ci(0.0,1.0);
+	const double PI =  3.1415926536;
+}
 
 namespace GlobalVars 
 {	

@@ -36,14 +36,24 @@ public:
 
 private:
 
-	double theta_x;
 	double theta_y;
+	double theta_z;
 	double omega;
 
 
-	Pixel(double omg, double tx, double ty);
+	//vector;
+	union
+	{	
+		double n[1];
+		double nx;
+	};
+	double ny;
+	double nz;
 
-  	virtual ~Pixel();
+
+	Pixel(double omg, double ty, double tz);
+
+  	~Pixel();
 
 
 

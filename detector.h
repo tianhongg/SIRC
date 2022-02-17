@@ -48,8 +48,11 @@ private:
 	double Omega_Max;
 	double Omega_Min;
 
-	Pixel* Pixels;
+	double * ThetaYBin;
+	double * ThetaZBin;
+	double * OmegaBin;
 
+	list<Pixel*> Pixels;
 
 	Detector(char * infile);
 
