@@ -40,6 +40,7 @@ private:
 
 
 	int Rank;
+	int	ReadType;
   	double dt; 
   	double Tmax;
   	double lambda_L;
@@ -52,6 +53,7 @@ private:
 public: 
 
 	void Run();
+	int ReadTrajectory();
 
 	Domain(char *infile, int rank);  
 	~Domain();       

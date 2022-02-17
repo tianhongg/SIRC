@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <hdf5.h>
 
 #define ELECTRON 0
 #define ION 1
@@ -32,8 +33,8 @@ public:
 
 	int type;
 	double q2m;
-	double weight;  // how many real unit charge;
-	double ts;		//trajectory start time;
+	double weight;  	// how many real unit charge;
+	double start;		//trajectory start time;
 
 private:
 
@@ -46,16 +47,21 @@ private:
 
 public:
 
-	Particle(double weightp, double T_Start);
+	int Load(hid_t file_id,ULONG Idx_read, ULONG i);
+
+	Particle();
 
   	virtual ~Particle();
 
 
 };
 
-class Electron : public Particle {
-	public:
-	Electron(double weightp, double T_Start);
+class Electron : public Particle 
+{
+
+public:
+
+	Electron();
 	~Electron();
 
 };

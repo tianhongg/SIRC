@@ -36,6 +36,8 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	AddEntry((char*)"TStep", &dt,	1.0);
 	AddEntry((char*)"Tmax",  &Tmax,	1.0);
 	AddEntry((char*)"Wavelength", &lambda_L,	1.0);
+	AddEntry((char*)"ReadType",   &ReadType,	1);
+
 
 	Log("==== Domain: Read Parameters From ini File...");
 	FILE *p_File = fopen(infile,"rt");
@@ -51,21 +53,23 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 
 	MyDetector = new Detector((char*)"SIRC.ini");
 
-	Log("==== Domain: Read Trajectory...");
-
-
+	
 }
 
 
 void Domain::Run()
 {
-	delete MyDetector;
-	for(auto it : Particles)
+
+	Log("==== Domain::Run: Read Trajectory...");
+	if(this->ReadTrajectory())
 	{
-		delete it;
-	}
-	Particles.clear();
+		Log("==== Domain::Run: Read Trajectory Failed");
+		return;
+	};
+
 }
+
+
 
 
 
@@ -73,5 +77,11 @@ void Domain::Run()
 Domain::~Domain()
 {
 
+	delete MyDetector;
+	for(auto it : Particles)
+	{
+		delete it;
+	}
+	Particles.clear();
 	if(GlobalVars::LogFile) fclose(GlobalVars::LogFile);
 };

@@ -21,6 +21,9 @@
 
 #pragma once
 
+#define dcom std::complex<double>
+#define ULONG unsigned long
+
 #include <mpi.h>
 #include <complex>
 #include <cmath>
@@ -28,6 +31,7 @@
 #include <string>
 #include <list>
 #include <array>
+#include <assert.h> 
 
 #include "struct.h"
 #include "namelist.h"
@@ -36,8 +40,6 @@
 #include "pixel.h"
 #include "detector.h"
 
-
-#define dcom std::complex<double>
 
 namespace Constant
 {
@@ -55,9 +57,10 @@ namespace GlobalVars
 void Log0(bool all, const char * fmt,...);
 void LogDebug(const char * fmt,...);
 
-#define ALog(fmt, ...)  LogAll(true,fmt,##__VA_ARGS__)
+#define ALog(fmt, ...)  Log0(true,fmt,##__VA_ARGS__)
 #define Log(fmt, ...)  Log0(false,fmt,##__VA_ARGS__)
 #define DLog(fmt, ...) LogDebug(fmt,##__VA_ARGS__)
+#define FILENAME "Traj"
 
 
 

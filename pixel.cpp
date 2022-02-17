@@ -30,7 +30,7 @@ Pixel::Pixel(double omg, double ty, double tz)
 	ny = 		 sin(ty)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
 	nz =		 sin(tz)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
 	
-
+	
 }
 
 

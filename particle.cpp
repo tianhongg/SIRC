@@ -20,12 +20,12 @@
 
 #include "SIRC.h"
 
-Particle::Particle(double weightp, double T_Start)
+Particle::Particle()
 {
-	
-	weight=weightp;
-	q2m=1;
-	ts=T_Start;
+	weight=1.0;
+	start=0.0;
+	Position=NULL;
+	Velocity=NULL;
 }
 
 
@@ -36,7 +36,7 @@ Particle::~Particle()
 
 }
 
-Electron::Electron(double weightp, double T_Start) :Particle(weightp, T_Start)
+Electron::Electron() :Particle()
 {
 	q2m=1;
 	type = ELECTRON;

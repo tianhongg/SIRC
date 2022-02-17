@@ -50,6 +50,16 @@ private:
 	double ny;
 	double nz;
 
+	union
+	{	
+		dcom II[1];
+		dcom Ix;
+	};
+	dcom Iy;
+	dcom Iz;
+
+
+
 
 	Pixel(double omg, double ty, double tz);
 
