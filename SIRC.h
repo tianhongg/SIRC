@@ -25,11 +25,16 @@
 #include <complex>
 #include <cmath>
 #include <time.h> 
-#include "namelist.h"
-#include "domain.h"
-#include "detector.h"
-#include "pixel.h"
+#include <string>
+#include <list>
+#include <array>
 
+#include "struct.h"
+#include "namelist.h"
+#include "particle.h"
+#include "domain.h"
+#include "pixel.h"
+#include "detector.h"
 
 
 #define dcom std::complex<double>
@@ -37,12 +42,12 @@
 #define PI 3.1415926536
 
 
-enum class dim
-{
-	x=0,
-	y,
-	z
-};
+// enum class dim
+// {
+// 	x=0,
+// 	y,
+// 	z
+// };
 
 namespace GlobalVars 
 {	
@@ -51,10 +56,11 @@ namespace GlobalVars
 
 }
 
-void Log0(const char * fmt,...);
+void Log0(bool all, const char * fmt,...);
 void LogDebug(const char * fmt,...);
 
-#define Log(fmt, ...)  Log0(fmt,##__VA_ARGS__)
+#define ALog(fmt, ...)  LogAll(true,fmt,##__VA_ARGS__)
+#define Log(fmt, ...)  Log0(false,fmt,##__VA_ARGS__)
 #define DLog(fmt, ...) LogDebug(fmt,##__VA_ARGS__)
 
 

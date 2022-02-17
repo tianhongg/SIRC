@@ -39,13 +39,13 @@ int main(int argc, char** argv)
 	GlobalVars::Rank=Rank;
 
 	#ifdef _DEBUG
-    	char sFile[128];
-    	sprintf(sFile, "log_r_%d.dat", Rank);
-    	GlobalVars::LogFile = fopen(sFile, "w");
+		char sFile[128];
+		sprintf(sFile, "log_r_%d.dat", Rank);
+		GlobalVars::LogFile = fopen(sFile, "w");
 	#endif
 
 
-    Log("=============================================");
+	Log("=============================================");
 	Log(" 	   ____ ___ ____   ____ 	");
 	Log(" 	  / ___|_ _|  _ \\ / ___| 	");
 	Log(" 	  \\___ \\| || |_) | |      ");

@@ -48,6 +48,8 @@ private:
 	double Omega_Max;
 	double Omega_Min;
 
+	Pixel* Pixels;
+
 
 	Detector(char * infile);
 

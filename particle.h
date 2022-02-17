@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------||
-//-------------------                  domain.cpp                -------------------||
+//-------------------                  particle.h                -------------------||
 //----------------------------------------------------------------------------------||
 //                               ____ ___ ____   ____                               ||
 //                              / ___|_ _|  _ \ / ___|                              ||
@@ -18,50 +18,44 @@
 //----------------------------------------------------------------------------------||
 //----------------------------------------------------------------------------------||
 
-#include "SIRC.h"
-
-//Domain::p_D = NULL;
-Domain* Domain::p_Domain= NULL;
+#pragma once
 
 
+#define ELECTRON 0
+#define ION 1
 
-Domain::Domain (char * infile, int rank) : NList("Domain") 
+class Particle
 {
+	friend class Domain;
 
-	Domain::p_Domain = this; 
-	Rank = rank;
+public:
 
-	AddEntry((char*)"TStep", &dt,	1.0);
-	AddEntry((char*)"Tmax",  &Tmax,	1.0);
-	AddEntry((char*)"Wavelength", &lambda_L,	1.0);
+	int type;
+	double q2m;
+	double weight;  // how many real unit charge;
+	double ts;		//trajectory start time;
 
-
-
-	Log("==== Create Detector...");
-
-	MyDetector = new Detector((char*)"SIRC.ini");
-
-	Log("==== Read Trajectory...");
-
-
-}
-
-
-void Domain::Run()
-{
-	delete MyDetector;
-	for(auto it : Particles)
-	{
-		delete it;
-	}
-	Particles.clear();
-}
+private:
 
 
 
-//---------------------------- Domain::~Domain() -----------------------
-Domain::~Domain()
-{
+	Vec3* Position;
+	Vec3* Velocity;
 
-	if(GlobalVars::LogFile) fclose(GlobalVars::LogFile);
+
+
+public:
+
+	Particle(double weightp, double T_Start);
+
+  	virtual ~Particle();
+
+
+};
+
+class Electron : public Particle {
+	public:
+	Electron(double weightp, double T_Start);
+	~Electron();
+
 };

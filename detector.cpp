@@ -38,8 +38,9 @@ Detector::Detector(char * infile): NList("Detector")
 
 }
 
-
 Detector::~Detector()
 {
 
+	delete[] Pixels;
+ 
 }

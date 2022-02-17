@@ -25,9 +25,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-#include <string>
-
 using namespace std;
+
+class Detector;
 
 class Domain : public NList
 {
@@ -43,6 +43,10 @@ private:
   	double dt; 
   	double Tmax;
   	double lambda_L;
+
+  	list<Particle*> Particles;
+  	Detector* MyDetector;
+
 
   	
 public: 

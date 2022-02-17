@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------||
-//-------------------                  domain.cpp                -------------------||
+//-------------------                 struct.h                   -------------------||
 //----------------------------------------------------------------------------------||
 //                               ____ ___ ____   ____                               ||
 //                              / ___|_ _|  _ \ / ___|                              ||
@@ -18,50 +18,16 @@
 //----------------------------------------------------------------------------------||
 //----------------------------------------------------------------------------------||
 
-#include "SIRC.h"
-
-//Domain::p_D = NULL;
-Domain* Domain::p_Domain= NULL;
+#pragma once
 
 
-
-Domain::Domain (char * infile, int rank) : NList("Domain") 
+class Vec3
 {
 
-	Domain::p_Domain = this; 
-	Rank = rank;
+public:
 
-	AddEntry((char*)"TStep", &dt,	1.0);
-	AddEntry((char*)"Tmax",  &Tmax,	1.0);
-	AddEntry((char*)"Wavelength", &lambda_L,	1.0);
+	double x;
+	double y;
+	double z;
 
-
-
-	Log("==== Create Detector...");
-
-	MyDetector = new Detector((char*)"SIRC.ini");
-
-	Log("==== Read Trajectory...");
-
-
-}
-
-
-void Domain::Run()
-{
-	delete MyDetector;
-	for(auto it : Particles)
-	{
-		delete it;
-	}
-	Particles.clear();
-}
-
-
-
-//---------------------------- Domain::~Domain() -----------------------
-Domain::~Domain()
-{
-
-	if(GlobalVars::LogFile) fclose(GlobalVars::LogFile);
 };

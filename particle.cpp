@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------||
-//-------------------                  domain.cpp                -------------------||
+//-------------------                  particle.cpp              -------------------||
 //----------------------------------------------------------------------------------||
 //                               ____ ___ ____   ____                               ||
 //                              / ___|_ _|  _ \ / ___|                              ||
@@ -20,48 +20,26 @@
 
 #include "SIRC.h"
 
-//Domain::p_D = NULL;
-Domain* Domain::p_Domain= NULL;
-
-
-
-Domain::Domain (char * infile, int rank) : NList("Domain") 
+Particle::Particle(double weightp, double T_Start)
 {
-
-	Domain::p_Domain = this; 
-	Rank = rank;
-
-	AddEntry((char*)"TStep", &dt,	1.0);
-	AddEntry((char*)"Tmax",  &Tmax,	1.0);
-	AddEntry((char*)"Wavelength", &lambda_L,	1.0);
-
-
-
-	Log("==== Create Detector...");
-
-	MyDetector = new Detector((char*)"SIRC.ini");
-
-	Log("==== Read Trajectory...");
-
-
+	
+	weight=weightp;
+	q2m=1;
+	ts=T_Start;
 }
 
 
-void Domain::Run()
+Particle::~Particle()
 {
-	delete MyDetector;
-	for(auto it : Particles)
-	{
-		delete it;
-	}
-	Particles.clear();
+	delete[] Position;
+	delete[] Velocity;
+
 }
 
-
-
-//---------------------------- Domain::~Domain() -----------------------
-Domain::~Domain()
+Electron::Electron(double weightp, double T_Start) :Particle(weightp, T_Start)
 {
-
-	if(GlobalVars::LogFile) fclose(GlobalVars::LogFile);
-};
+	q2m=1;
+	type = ELECTRON;
+}
+Electron::~Electron()
+{;};

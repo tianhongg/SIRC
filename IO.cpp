@@ -24,10 +24,10 @@
 
 // IO
 
-void Log0(const char * fmt,...)
+void Log0(bool all, const char * fmt,...)
 {
 
-	if(GlobalVars::Rank>0) return;
+	if(!all && GlobalVars::Rank>0) return;
 
 	const char *fmtn;
 	string str(fmt);
