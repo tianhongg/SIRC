@@ -83,5 +83,9 @@ Domain::~Domain()
 		delete it;
 	}
 	Particles.clear();
-	if(GlobalVars::LogFile) fclose(GlobalVars::LogFile);
+	if(GlobalVars::LogFile)
+	{
+		
+		fclose(GlobalVars::LogFile);
+	}
 };

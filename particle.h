@@ -33,8 +33,9 @@ public:
 
 	int type;
 	double q2m;
-	double weight;  	// how many real unit charge;
-	double start;		//trajectory start time;
+	double weight;     // how many real unit charge;
+	double start;	   //trajectory start time;
+	ULONG NStep; 	   //size of 
 
 private:
 
@@ -47,7 +48,8 @@ private:
 
 public:
 
-	int Load(hid_t file_id,ULONG Idx_read, ULONG i);
+	int Load(hid_t file_id, ULONG i);
+	void Normalize();
 
 	Particle();
 

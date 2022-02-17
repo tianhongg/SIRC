@@ -30,4 +30,30 @@ public:
 	double y;
 	double z;
 
+	Vec3& operator/=(double d)
+	{
+		x /= d;
+		y /= d;
+		z /= d;
+		return *this;
+	}
+
+	Vec3& operator*=(double d)
+	{
+		x *= d;
+		y *= d;
+		z *= d;
+		return *this;
+	}
+
+	double abs()
+	{
+		return sqrt(x*x + y*y + z*z);
+	}
+
+	double abs2()
+	{
+		return (x*x + y*y + z*z);
+	}
+
 };
