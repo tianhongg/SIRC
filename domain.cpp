@@ -31,14 +31,16 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	Domain::p_Domain = this; 
 	Rank = rank;
 	Size_P=0;
-
-
+	BunchXiMax = -1e10;
+	BunchXiMin = +1e10;
 
 	AddEntry((char*)"TStep", &dt,	1.0);
-	AddEntry((char*)"TMax",  &Tmax,	1.0);
-	AddEntry((char*)"Wavelength", 		&lambda_L,	1.0);
-	AddEntry((char*)"ReadType",   		&ReadType,	10);
-	AddEntry((char*)"OutputInterval",  	&Out_dt,	1);
+	AddEntry((char*)"MaxSteps",  		&MaxStep,		10);
+	AddEntry((char*)"Wavelength", 		&lambda_L,		1.0);
+	AddEntry((char*)"ReadType",   		&ReadType,		10);
+	AddEntry((char*)"OutputInterval",  	&Out_dt,		1);
+	AddEntry((char*)"MovingFrame",  	&MovingFrame,	1);
+	
 
 
 	Log("Domain: Read Parameters From ini File...");
@@ -52,17 +54,12 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 
 	//normalize
 	dt     *= 2*Constant::PI;
-	Tmax   *= 2*Constant::PI;
-	Out_dt *= 2*Constant::PI;
+
 
 	//for the tick
-	time = 0.0;
-	d_tick = Tmax/200.01;
+	step = 0.0;
+	d_tick = MaxStep/200.01;
 	n_out=n_tick=0;
-
-	Log("Domain: Create Detector...");
-
-	MyDetector = new Detector((char*)"SIRC.ini");
 
 }
 
@@ -70,12 +67,21 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 void Domain::Run()
 {
 
+	Log("Domain::Run--------------------");
 	Log("Domain::Run: Read Trajectory...");
 	if(this->ReadTrajectory())
 	{
 		Log("Domain::Run: Read Trajectory Failed");
 		return;
 	};
+
+	this->ReduceBunchSize();
+
+	Log("Domain::Run: Create Detector...");
+	MyDetector = new Detector((char*)"SIRC.ini");
+
+	Log("Domain::Run: TimeTagging Particles...");
+	this->TagParticles();
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	Log("Domain::Run: Start Calculation");
@@ -86,6 +92,37 @@ void Domain::Run()
 }
 
 
+
+void Domain::ReduceBunchSize()
+{
+	double bmax;
+	double bmin;
+	MPI_Allreduce(&BunchXiMin, &bmin, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+	MPI_Allreduce(&BunchXiMax, &bmax, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+
+	BunchXiMin = bmin;
+	BunchXiMax = bmax;
+	
+	 Log("Domain::ReduceBunchSize(): Bunch Size in Moving Frame: [%.2f, %.2f].",bmin,bmax);
+	DLog("Domain::ReduceBunchSize(): Bunch Size in Moving Frame: [%.2f, %.2f].",bmin,bmax);
+
+}
+
+
+void Domain::TagParticles()
+{
+
+	for(auto it = Particles.begin(); it!=Particles.end(); it++)
+	{
+		Particle * p = *it;
+
+		if(N_Time==1) continue;
+		
+		double dxi = (BunchXiMax-BunchXiMin)/(N_Time-1);
+		p->t_bin = (ULONG)floor((p->xi - BunchXiMin)/dxi);
+	}
+
+}
 
 //---------------------------- Domain::~Domain() -----------------------
 Domain::~Domain()

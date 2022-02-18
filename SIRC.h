@@ -61,8 +61,8 @@ namespace GlobalVars
 void Log0(bool all, const char * fmt,...);
 void LogDebug(const char * fmt,...);
 
-#define ALog(fmt, ...)  Log0(true,fmt,##__VA_ARGS__)
 #define Log(fmt, ...)  Log0(false,fmt,##__VA_ARGS__)
+#define ALog(fmt, ...)  Log0(true,fmt,##__VA_ARGS__)
 #define DLog(fmt, ...) LogDebug(fmt,##__VA_ARGS__)
 
 

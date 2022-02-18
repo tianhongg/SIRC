@@ -29,32 +29,39 @@ class Particle
 {
 	friend class Domain;
 	friend class Detector;
+	friend class Pixel;
 
-public:
-
-
-	Domain *p_domain() {return Domain::p_Domain;}; 
-
-	int type;
-	double q2m;
-	double weight;     // how many real unit charge;
-	double start;	   //trajectory start time;
-	double dt;
-	ULONG NStep; 	   //size of 
 
 private:
 
+	Domain *p_domain() {return Domain::p_Domain;}; 
 
+	
+	
+	double weight;     // how many real unit charge;
+
+	int start;	   //trajectory start step;
+
+	ULONG NStep; 	   //size of steps
+	ULONG Current_Step; 
 
 	Vec3* Position;
 	Vec3* Velocity;
 
+	ULONG t_bin;
+	double xi;
+
+
 
 
 public:
 
+	double q2m;
+	int type;
+
 	int Load(hid_t file_id, ULONG i);
 	void Normalize();
+	bool IsInFrame(int step);
 
 	Particle();
 

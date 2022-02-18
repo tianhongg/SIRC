@@ -25,8 +25,7 @@
 Detector::Detector(char * infile): NList("Detector") 
 {
 
-	
-
+	Log("Detector--------------------");
 	AddEntry((char*)"ThetaY_Max", 	&Theta_Y_Max,	1.0);
 	AddEntry((char*)"ThetaZ_Max", 	&Theta_Z_Max,	1.0);
 	AddEntry((char*)"OmegaMax", 	&Omega_Max,		20.);
@@ -35,6 +34,7 @@ Detector::Detector(char * infile): NList("Detector")
 	AddEntry((char*)"ThetaZ_Grid", 	&N_Theta_Z,		1);
 	AddEntry((char*)"OmegaGrid", 	&N_Omega,		10);
 	AddEntry((char*)"Energy_Scale", &Omega_Scale,   0);
+	AddEntry((char*)"Time_Grid",	&N_Time,		1);
 	
 	Log("Detector: Read Parameters From ini File...");
 	FILE *p_File = fopen(infile,"rt");
@@ -50,6 +50,7 @@ Detector::Detector(char * infile): NList("Detector")
 	N_Theta_Y = max(1,N_Theta_Y);
 	N_Theta_Z = max(1,N_Theta_Z);
 	N_Omega   = max(2,N_Omega);
+	N_Time = max(1,N_Time);
 
 	Theta_Y_Max = max(0.0,min(Constant::PI,Theta_Y_Max));
 	Theta_Z_Max = max(0.0,min(Constant::PI,Theta_Z_Max));
@@ -65,12 +66,16 @@ Detector::Detector(char * infile): NList("Detector")
 		N_Theta_Z/=2; N_Theta_Z = N_Theta_Z*2+1;
 	}
 
+	if(p_domain()->BunchXiMax==p_domain()->BunchXiMin) N_Time=1;
+	p_domain()->N_Time = N_Time;
+
 
 	// number of pixels
 	N_Pixel = N_Omega*N_Theta_Y*N_Theta_Z;
-	int Size_P = N_Pixel*sizeof(Pixel)/1024;
+	int Size_P = (N_Pixel*sizeof(Pixel) + sizeof(dcom)*3*N_Time)/1024;
 
 	Log("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);
+	Log("Detector: which pixel has [%d] time_bins",	N_Time);
 	Log("Detector: Create [%d] Pixels...",N_Pixel);
 	Log("Detector: Size of All Pixels: [%d Kilobytes]", Size_P);
 
@@ -114,7 +119,7 @@ Detector::Detector(char * infile): NList("Detector")
 		{
 			for(int k=0; k<N_Theta_Z;k++)
 			{
-				Pixels.push_back( new Pixel(OmegaBin[i],ThetaYBin[j], ThetaZBin[k]));
+				Pixels.push_back( new Pixel(OmegaBin[i],ThetaYBin[j], ThetaZBin[k], N_Time));
 			}
 		}
 

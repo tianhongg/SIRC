@@ -38,21 +38,25 @@ public:
 	static Domain *p_Domain;
 
 	ULONG Size_P;
+	double BunchXiMax;
+	double BunchXiMin;
+	int N_Time;
  
 private:
-
 
 	int Rank;
 	int	ReadType;
   	double dt; 
-  	double Tmax;
-  	double Out_dt;
   	double lambda_L;
-  	double time;
+
+  	int MaxStep;
+  	int Out_dt;
+  	int step;
+  	
+  	int MovingFrame;
 
   	list<Particle*> Particles;
   	Detector* MyDetector;
-
 
   	//for tic function;
   	int n_out;
@@ -60,8 +64,6 @@ private:
 	double d_tick;
 	chrono::time_point<std::chrono::system_clock> tic;
 
-
-  	
 public: 
 
 	void Run();
@@ -69,6 +71,12 @@ public:
 	void OnCalculate();
 	void Tick();
 	void Output(int n);
+	void ReduceBunchSize();
+	void TagParticles();
+
+	double GetDt() {return dt;}
+	int GetStep()  {return step;}
+	bool IsMovingFrame() {return MovingFrame==1? true:false;}
 
 	Domain(char *infile, int rank);  
 	~Domain();       

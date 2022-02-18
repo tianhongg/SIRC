@@ -40,28 +40,19 @@ private:
 	double theta_z;
 	double omega;
 
+	//Unit vector;
+	Vec3 n;
 
-	//vector;
-	union
-	{	
-		double n[1];
-		double nx;
-	};
-	double ny;
-	double nz;
+	//
+	int N_Time;
 
-	union
-	{	
-		dcom II[1];
-		dcom Ix;
-	};
-	dcom Iy;
-	dcom Iz;
+	dcom* Ix;
+	dcom* Iy;
+	dcom* Iz;
 
 
-
-
-	Pixel(double omg, double ty, double tz);
+	Pixel(double omg, double ty, double tz, int timebin);
+	void OnDeposit(Particle* p);
 
   	~Pixel();
 

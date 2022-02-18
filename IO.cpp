@@ -75,9 +75,9 @@ void LogDebug(const char * fmt,...)
 }
 
 
-
 int Domain::ReadTrajectory()
 {
+	Log("Domain::ReadTrajectory--------------------");
 	string str = FILENAME;
 	char filename[128];
 
@@ -278,17 +278,13 @@ int Particle::Load(hid_t file_id, ULONG i)
 
 	//start
 	dataset_id=H5Dopen1(group_id,"start");
-	if(H5Dread(dataset_id,H5T_NATIVE_DOUBLE,H5S_ALL,H5S_ALL,H5P_DEFAULT,&(this->start))<0)
+	if(H5Dread(dataset_id,H5T_NATIVE_INT,H5S_ALL,H5S_ALL,H5P_DEFAULT,&(this->start))<0)
 	{
 		DLog("Particle::Load: Failed at Particle [%i] start",i);
 		return 1;
 	}
 
-
 	this->Normalize();
-
-
-
 
 	// if(i==0)
 	// {

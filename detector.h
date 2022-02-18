@@ -35,6 +35,7 @@ private:
 	int N_Omega;
 	int N_Theta_Y;
 	int N_Theta_Z;
+	int N_Time;
 
 	int Omega_Scale;
 
@@ -56,6 +57,7 @@ private:
 
 
 public:
-	void OnOneParticle(Vec3 &P, Vec3 &V);
+	Domain *p_domain() {return Domain::p_Domain;}; 
+	void OnDeposit(Particle* p);
 
 };

@@ -19,22 +19,30 @@
 //----------------------------------------------------------------------------------||
 #include "SIRC.h"
 
-Pixel::Pixel(double omg, double ty, double tz)
+Pixel::Pixel(double omg, double ty, double tz, int timebin)
 {
 
 	omega   = omg;
 	theta_y = ty;
 	theta_z = tz;
 
-	nx = cos(ty)*cos(tz)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
-	ny = 		 sin(ty)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
-	nz =		 sin(tz)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
-	
+	n.x = cos(ty)*cos(tz)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
+	n.y = 		 sin(ty)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
+	n.z =		 sin(tz)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
+
+	N_Time = timebin;
+
+	Ix = new dcom[N_Time];
+	Iy = new dcom[N_Time];
+	Iz = new dcom[N_Time];
 	
 }
 
 
 Pixel::~Pixel()
 {
-	
+	delete[] Ix;
+	delete[] Iy;
+	delete[] Iz;
+
 }

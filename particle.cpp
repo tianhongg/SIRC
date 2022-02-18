@@ -22,22 +22,53 @@
 
 void Particle::Normalize()
 {
+
+	double dt = p_domain()->GetDt();
+
+	//normalized 
+	start *= 2*Constant::PI;
+
 	for(int i=0; i<NStep; i++)
 	{
 		Position[i] *= (2*Constant::PI);
 		Velocity[i] /= (sqrt(1.0+Velocity[i].abs2()));
+
+		if(p_domain()->IsMovingFrame())
+		{
+			xi = Position[i].x;
+			p_domain()->BunchXiMax = max(p_domain()->BunchXiMax,xi);
+			p_domain()->BunchXiMin = min(p_domain()->BunchXiMin,xi);
+			//convert to lab frame
+			Position[i].x = start+i*dt + xi;
+		}
+		else
+		{
+			xi =Position[i].x-start-i*dt;
+			p_domain()->BunchXiMax = max(p_domain()->BunchXiMax,xi);
+			p_domain()->BunchXiMin = min(p_domain()->BunchXiMin,xi);
+
+		}
 	}
+
+
 
 }
 
+bool Particle::IsInFrame(int step)
+{
+	this->Current_Step = step - start;
+	// Current_Step will be > 0 and < NStep-1;
+	return (step>start&&step<NStep+start-1)? true:false;
 
 
+}
 Particle::Particle()
 {
 	weight=1.0;
 	start=0.0;
 	Position=NULL;
 	Velocity=NULL;
+	t_bin=0;
 }
 
 
