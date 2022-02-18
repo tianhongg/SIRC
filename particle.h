@@ -31,6 +31,9 @@ class Particle
 
 public:
 
+
+	Domain *p_domain() {return Domain::p_Domain;}; 
+
 	int type;
 	double q2m;
 	double weight;     // how many real unit charge;

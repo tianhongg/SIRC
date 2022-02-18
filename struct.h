@@ -56,4 +56,12 @@ public:
 		return (x*x + y*y + z*z);
 	}
 
+	Vec3(){;};
+	Vec3(double x0, double y0, double z0)
+	{
+		x=x0;
+		y=y0;
+		z=z0;
+	}
+
 };

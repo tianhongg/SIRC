@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------||
-//-------------------                   domian.h                 -------------------||
+//-------------------               radiation.cpp                -------------------||
 //----------------------------------------------------------------------------------||
 //                               ____ ___ ____   ____                               ||
 //                              / ___|_ _|  _ \ / ___|                              ||
@@ -19,49 +19,17 @@
 //----------------------------------------------------------------------------------||
 
 
-#pragma once
 
 
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-using namespace std;
+#include "SIRC.h"
 
-class Detector;
-class Particle;
 
-class Domain : public NList
+
+void Domain::OnCalculate()
 {
 
-public:
 
-	static Domain *p_Domain;
+	
 
-	ULONG Size_P;
- 
-private:
-
-
-	int Rank;
-	int	ReadType;
-  	double dt; 
-  	double Tmax;
-  	double Out_dt;
-  	double lambda_L;
-
-  	list<Particle*> Particles;
-  	Detector* MyDetector;
-
-
-  	
-public: 
-
-	void Run();
-	int ReadTrajectory();
-	void OnCalculate();
-
-	Domain(char *infile, int rank);  
-	~Domain();       
-
-
-};
+	
+}

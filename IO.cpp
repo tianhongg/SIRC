@@ -24,14 +24,25 @@
 
 // general IO
 
+string return_current_time_and_date()
+{
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    ss<<"[";
+    ss<<setfill('0')<<setw(4)<<GlobalVars::Rank;
+    ss << std::put_time(std::localtime(&in_time_t), "][%H:%M:%S] ");
+    return ss.str();
+}
 void Log0(bool all, const char * fmt,...)
 {
 
 	if(!all && GlobalVars::Rank>0) return;
-
 	const char *fmtn;
 	string str(fmt);
 	str+="\n";
+	str=return_current_time_and_date()+str;
 	fmtn=str.c_str();
 	va_list arglist;
     va_start( arglist, fmt );
@@ -51,6 +62,7 @@ void LogDebug(const char * fmt,...)
 	const char *fmtn;
 	string str(fmt);
 	str+="\n";
+	str=return_current_time_and_date()+str;
 	fmtn=str.c_str();
 	va_list arglist;
     va_start( arglist, fmt );
@@ -77,7 +89,7 @@ int Domain::ReadTrajectory()
 
 	str+=string(filename);
 
-	Log("==== Domain::ReadTrajectory: Read Trajectory Type [%d]", ReadType);
+	Log("Domain::ReadTrajectory: Read Trajectory Type [%d]", ReadType);
 	DLog("Domain::ReadTrajectory: Reading Trajectories From File: [%s]",str.c_str());
 
 	// open file 
@@ -100,7 +112,7 @@ int Domain::ReadTrajectory()
 		N_read = size_p/N_Processor;
 		if(N_read<1)
 		{
-			Log("==== Domain::ReadTrajectory: Too Many Cores, Not Enough Particles");
+			Log("Domain::ReadTrajectory: Too Many Cores, Not Enough Particles");
 			return 1;
 		}
 		Idx_read = Rank*N_read;
@@ -120,13 +132,17 @@ int Domain::ReadTrajectory()
 		Particles.push_back(OneParticle);
 
 		if(OneParticle->Load(file_id, Idx_read+i))
-			DLog("Domain::ReadTrajectory: Reading Trajectory [%d] Failed at Rank [%d]",Idx_read+i,Rank);
+			DLog("Domain::ReadTrajectory: Reading Trajectory [%d] Failed ",Idx_read+i);
 	}
 
 
 	//close
 	status = H5Fclose(file_id);
 
+	ALog("Domain::ReadTrajectory: Size of Particle Data: [%d Kilobytes]", N_read*Size_P/1024);
+	DLog("Domain::ReadTrajectory: Size of Particle Data: [%d Kilobytes]", N_read*Size_P/1024);
+
+	
 
 	return 0;
 
@@ -139,7 +155,7 @@ int Particle::Load(hid_t file_id, ULONG i)
 
 	DLog("Particle::Load: Reading Trajectory [%d]",i);
 
-	//h5
+	// h5
 	hid_t	group_id, dataset_id; 
 	hsize_t	num_obj;
 	H5G_info_t group_info;
@@ -149,24 +165,24 @@ int Particle::Load(hid_t file_id, ULONG i)
 	ssize_t len = H5Gget_objname_by_idx(file_id, i, NULL, 0 );
 	particle_name=new char[++len]; 
 	H5Gget_objname_by_idx(file_id, i, particle_name, len);
-
 	if(H5Gget_info_by_name( file_id, particle_name, &group_info, H5P_DEFAULT )<0)
 	{
-		ALog("Failed at Particle::Load::H5Gget_info_by_name() at Rank [%d]",GlobalVars::Rank);
+		ALog("Failed at Particle::Load::H5Gget_info_by_name()");
 		DLog("Failed at Particle::Load::H5Gget_info_by_name()");
 		return 1;
 	}
 
+	//get group
 	group_id=H5Gopen( file_id, particle_name, H5P_DEFAULT);
 
 	if(H5Gget_num_objs(group_id,&num_obj)<0)
 	{
-		ALog("Failed at Particle::Load::H5Gget_num_objs() at Rank [%d]",GlobalVars::Rank);
+		ALog("Failed at Particle::Load::H5Gget_num_objs()");
 		DLog("Failed at Particle::Load::H5Gget_num_objs()");
 		return 1;
 	}
 
-	
+
 	// read the position and get the size first
 	dataset_id=H5Dopen1(group_id,"xx");
 	hid_t dspace = H5Dget_space(dataset_id);
@@ -174,6 +190,10 @@ int Particle::Load(hid_t file_id, ULONG i)
 	hsize_t dims[ndims];
 	H5Sget_simple_extent_dims(dspace, dims, NULL);
 	ULONG nt = dims[0];
+	//count the memory size
+	p_domain()->Size_P = max(p_domain()->Size_P,sizeof(Particle)+sizeof(Vec3)*2*nt);
+
+
 	DLog("Particle::Load: Particle [%d] Total Steps [%d]",i, nt);
 
 	// make buff and allocate trajectory
@@ -263,6 +283,8 @@ int Particle::Load(hid_t file_id, ULONG i)
 
 
 	this->Normalize();
+
+
 
 
 	// if(i==0)

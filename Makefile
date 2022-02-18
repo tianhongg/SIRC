@@ -1,4 +1,4 @@
-PROGRAM.O = domain.o particle.o detector.o pixel.o namelist.o IO.o SIRC.o
+PROGRAM.O = domain.o radiation.o particle.o detector.o pixel.o namelist.o IO.o SIRC.o
 
 M_MAKE = $(MAKE) -j4
 

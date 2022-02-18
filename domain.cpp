@@ -30,16 +30,18 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 
 	Domain::p_Domain = this; 
 	Rank = rank;
+	Size_P=0;
 
 
 
 	AddEntry((char*)"TStep", &dt,	1.0);
 	AddEntry((char*)"Tmax",  &Tmax,	1.0);
-	AddEntry((char*)"Wavelength", &lambda_L,	1.0);
-	AddEntry((char*)"ReadType",   &ReadType,	1);
+	AddEntry((char*)"Wavelength", 		&lambda_L,	1.0);
+	AddEntry((char*)"ReadType",   		&ReadType,	10);
+	AddEntry((char*)"OutputInterval",  	&Out_dt,	1);
 
 
-	Log("==== Domain: Read Parameters From ini File...");
+	Log("Domain: Read Parameters From ini File...");
 	FILE *p_File = fopen(infile,"rt");
 	if (p_File)
 	{
@@ -48,28 +50,34 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	}
 	fclose(p_File); 
 
+	//normalize
 
-	Log("==== Domain: Create Detector...");
+	dt     *= 2*Constant::PI;
+	Tmax   *= 2*Constant::PI;
+	Out_dt *= 2*Constant::PI;
 
+	Log("Domain: Create Detector...");
+	
 	MyDetector = new Detector((char*)"SIRC.ini");
 
-	
 }
 
 
 void Domain::Run()
 {
 
-	Log("==== Domain::Run: Read Trajectory...");
+	Log("Domain::Run: Read Trajectory...");
 	if(this->ReadTrajectory())
 	{
-		Log("==== Domain::Run: Read Trajectory Failed");
+		Log("Domain::Run: Read Trajectory Failed");
 		return;
 	};
 
+	MPI_Barrier(MPI_COMM_WORLD);
+	Log("Domain::Run: Start Calculation");
+	this->OnCalculate();
+
 }
-
-
 
 
 
@@ -85,7 +93,7 @@ Domain::~Domain()
 	Particles.clear();
 	if(GlobalVars::LogFile)
 	{
-		
+
 		fclose(GlobalVars::LogFile);
 	}
 };

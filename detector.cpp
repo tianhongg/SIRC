@@ -36,7 +36,7 @@ Detector::Detector(char * infile): NList("Detector")
 	AddEntry((char*)"OmegaGrid", 	&N_Omega,		10);
 	AddEntry((char*)"Energy_Scale", &Omega_Scale,   0);
 	
-	Log("==== Detector: Read Parameters From ini File...");
+	Log("Detector: Read Parameters From ini File...");
 	FILE *p_File = fopen(infile,"rt");
 	if (p_File)
 	{
@@ -70,8 +70,8 @@ Detector::Detector(char * infile): NList("Detector")
 	N_Pixel = N_Omega*N_Theta_Y*N_Theta_Z;
 	int Size_P = N_Pixel*sizeof(Pixel)/1024;
 
-	Log("==== Detector: Create [%d] Pixels...",N_Pixel);
-	Log("==== Detector: Size of All Pixels: [%d Kilobytes]", Size_P);
+	Log("Detector: Create [%d] Pixels...",N_Pixel);
+	Log("Detector: Size of All Pixels: [%d Kilobytes]", Size_P);
 
 
 	OmegaBin  = new double[N_Omega];
@@ -118,12 +118,6 @@ Detector::Detector(char * infile): NList("Detector")
 		}
 
 	}
-
-
-
-
-
-
 
 }
 

@@ -28,7 +28,9 @@
 #include <mpi.h>
 #include <complex>
 #include <cmath>
-#include <time.h> 
+#include <chrono>  
+#include <ctime>   
+#include <iomanip> 
 #include <string>
 #include <list>
 #include <array>
@@ -36,8 +38,8 @@
 
 #include "struct.h"
 #include "namelist.h"
-#include "particle.h"
 #include "domain.h"
+#include "particle.h"
 #include "pixel.h"
 #include "detector.h"
 
