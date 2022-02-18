@@ -28,6 +28,7 @@
 class Particle
 {
 	friend class Domain;
+	friend class Detector;
 
 public:
 
@@ -38,6 +39,7 @@ public:
 	double q2m;
 	double weight;     // how many real unit charge;
 	double start;	   //trajectory start time;
+	double dt;
 	ULONG NStep; 	   //size of 
 
 private:

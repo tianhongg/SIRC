@@ -28,10 +28,6 @@ class Detector : public NList
 {
 	friend class Domain;
 
-
-public:
-
-
 private:
 
 	int N_Pixel;
@@ -57,5 +53,9 @@ private:
 	Detector(char * infile);
 
   	~Detector();
+
+
+public:
+	void OnOneParticle(Vec3 &P, Vec3 &V);
 
 };
