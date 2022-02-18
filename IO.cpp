@@ -39,11 +39,13 @@ void Log0(bool all, const char * fmt,...)
 {
 
 	if(!all && GlobalVars::Rank>0) return;
+
 	const char *fmtn;
 	string str(fmt);
-	str+="\n";
-	str=return_current_time_and_date()+str;
+	str=return_current_time_and_date()+str+"\n";
+
 	fmtn=str.c_str();
+
 	va_list arglist;
     va_start( arglist, fmt );
     vprintf( fmtn, arglist);
@@ -62,8 +64,9 @@ void LogDebug(const char * fmt,...)
 	const char *fmtn;
 	string str(fmt);
 	str+="\n";
-	str=return_current_time_and_date()+str;
+
 	fmtn=str.c_str();
+
 	va_list arglist;
     va_start( arglist, fmt );
     vfprintf(GlobalVars::LogFile,fmtn, arglist);
@@ -297,6 +300,14 @@ int Particle::Load(hid_t file_id, ULONG i)
 	// 	}
 	// }
 
-
 	return 0;
+}
+
+
+void Domain::Output(int n)
+{
+
+
+
+	
 }

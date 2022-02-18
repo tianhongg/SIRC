@@ -70,6 +70,7 @@ Detector::Detector(char * infile): NList("Detector")
 	N_Pixel = N_Omega*N_Theta_Y*N_Theta_Z;
 	int Size_P = N_Pixel*sizeof(Pixel)/1024;
 
+	Log("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);
 	Log("Detector: Create [%d] Pixels...",N_Pixel);
 	Log("Detector: Size of All Pixels: [%d Kilobytes]", Size_P);
 

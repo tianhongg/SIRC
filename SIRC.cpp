@@ -55,8 +55,7 @@ int main(int argc, char** argv)
 	Log("==== Copyright: (C) 2022 by Tianhong Wang.");
 	Log("==== Number of Total Ranks: [%d].",N_processor);
 	Log("=============================================\n");
-	DLog("Rank_%03d: Log file created.",Rank);
-
+	DLog("Log file created.");
 
 
 	Domain *domain = new Domain((char*)"SIRC.ini",Rank);
@@ -64,6 +63,8 @@ int main(int argc, char** argv)
 	
 	delete domain;
 
+
+	Log("==== SIRC: Bye!");
 	MPI_Finalize();
 
 	return 0;

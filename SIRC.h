@@ -21,6 +21,8 @@
 
 #pragma once
 
+#define FILENAME "Traj"
+
 #define dcom std::complex<double>
 #define ULONG unsigned long
 
@@ -47,14 +49,13 @@
 namespace Constant
 {
 	const dcom ci(0.0,1.0);
-	const double PI =  3.1415926536;
+	const double PI = 3.14159265358979323846;
 }
 
 namespace GlobalVars 
 {	
 	extern int Rank;
 	extern FILE *LogFile;
-
 }
 
 void Log0(bool all, const char * fmt,...);
@@ -63,7 +64,7 @@ void LogDebug(const char * fmt,...);
 #define ALog(fmt, ...)  Log0(true,fmt,##__VA_ARGS__)
 #define Log(fmt, ...)  Log0(false,fmt,##__VA_ARGS__)
 #define DLog(fmt, ...) LogDebug(fmt,##__VA_ARGS__)
-#define FILENAME "Traj"
+
 
 
 

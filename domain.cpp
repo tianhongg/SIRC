@@ -35,7 +35,7 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 
 
 	AddEntry((char*)"TStep", &dt,	1.0);
-	AddEntry((char*)"Tmax",  &Tmax,	1.0);
+	AddEntry((char*)"TMax",  &Tmax,	1.0);
 	AddEntry((char*)"Wavelength", 		&lambda_L,	1.0);
 	AddEntry((char*)"ReadType",   		&ReadType,	10);
 	AddEntry((char*)"OutputInterval",  	&Out_dt,	1);
@@ -51,13 +51,17 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	fclose(p_File); 
 
 	//normalize
-
 	dt     *= 2*Constant::PI;
 	Tmax   *= 2*Constant::PI;
 	Out_dt *= 2*Constant::PI;
 
+	//for the tick
+	time = 0.0;
+	d_tick = Tmax/200.01;
+	n_out=n_tick=0;
+
 	Log("Domain: Create Detector...");
-	
+
 	MyDetector = new Detector((char*)"SIRC.ini");
 
 }
@@ -76,6 +80,8 @@ void Domain::Run()
 	MPI_Barrier(MPI_COMM_WORLD);
 	Log("Domain::Run: Start Calculation");
 	this->OnCalculate();
+
+	Log("Domain::Run: Done!");
 
 }
 

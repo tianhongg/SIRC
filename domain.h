@@ -48,9 +48,17 @@ private:
   	double Tmax;
   	double Out_dt;
   	double lambda_L;
+  	double time;
 
   	list<Particle*> Particles;
   	Detector* MyDetector;
+
+
+  	//for tic function;
+  	int n_out;
+	int n_tick;
+	double d_tick;
+	chrono::time_point<std::chrono::system_clock> tic;
 
 
   	
@@ -59,6 +67,8 @@ public:
 	void Run();
 	int ReadTrajectory();
 	void OnCalculate();
+	void Tick();
+	void Output(int n);
 
 	Domain(char *infile, int rank);  
 	~Domain();       
