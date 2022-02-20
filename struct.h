@@ -30,6 +30,59 @@ public:
 	double y;
 	double z;
 
+	//--------------------------
+	Vec3 operator-(void)
+	{
+		Vec3 tmp; 
+		tmp.x = -x;
+		tmp.y = -y;
+		tmp.z = -z;
+		return tmp;
+	}
+
+	//--------------------------
+	Vec3 operator-(Vec3 v)
+	{
+		Vec3 tmp(x-v.x, y-v.y, z-v.z);
+		return tmp;
+	}
+
+	Vec3 operator+(Vec3 v)
+	{
+		Vec3 tmp(x+v.x, y+v.y, z+v.z);
+		return tmp;
+	}
+
+	//--------------------------
+	Vec3 operator*(double d)
+	{
+		Vec3 tmp(x*d, y*d, z*d);
+		return tmp;
+	}
+
+	Vec3 operator/(double d)
+	{
+		Vec3 tmp(x/d, y/d, z/d);
+		return tmp;
+	}
+
+	//--------------------------
+	Vec3& operator-=(double d)
+	{
+		x -= d;
+		y -= d;
+		z -= d;
+		return *this;
+	}
+
+	Vec3& operator+=(double d)
+	{
+		x += d;
+		y += d;
+		z += d;
+		return *this;
+	}
+
 	Vec3& operator/=(double d)
 	{
 		x /= d;
@@ -46,16 +99,27 @@ public:
 		return *this;
 	}
 
-	double abs()
-	{
-		return sqrt(x*x + y*y + z*z);
-	}
-
+	//--------------------------
 	double abs2()
 	{
 		return (x*x + y*y + z*z);
 	}
 
+	double Dot(Vec3 v)
+	{
+		return x*v.x+y*v.y+z*v.z;
+	}
+
+	Vec3 Cross(Vec3 v)
+	{
+		Vec3 tmp; 
+		tmp.x = y*v.z - z*v.y;
+		tmp.y = z*v.x - x*v.z;
+		tmp.z = x*v.y - y*v.x;
+		return tmp;
+	}
+
+	//--------------------------
 	Vec3(){;};
 	Vec3(double x0, double y0, double z0)
 	{

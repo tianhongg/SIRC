@@ -27,22 +27,22 @@ Pixel::Pixel(double omg, double ty, double tz, int timebin)
 	theta_z = tz;
 
 	n.x = cos(ty)*cos(tz)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
-	n.y = 		 sin(ty)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
-	n.z =		 sin(tz)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
+	n.y = 		  sin(ty)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
+	n.z =		  sin(tz)/(1.0+sin(ty)*sin(ty)+sin(tz)*sin(tz));
 
 	N_Time = timebin;
 
-	Ix = new dcom[N_Time];
-	Iy = new dcom[N_Time];
-	Iz = new dcom[N_Time];
+	Ax = new dcom[N_Time];
+	Ay = new dcom[N_Time];
+	Az = new dcom[N_Time];
 	
 }
 
 
 Pixel::~Pixel()
 {
-	delete[] Ix;
-	delete[] Iy;
-	delete[] Iz;
+	delete[] Ax;
+	delete[] Ay;
+	delete[] Az;
 
 }

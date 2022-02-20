@@ -34,16 +34,14 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	BunchXiMax = -1e10;
 	BunchXiMin = +1e10;
 
-	AddEntry((char*)"TStep", &dt,	1.0);
+	AddEntry((char*)"TStep", 			&dt,			1.0);
 	AddEntry((char*)"MaxSteps",  		&MaxStep,		10);
 	AddEntry((char*)"Wavelength", 		&lambda_L,		1.0);
 	AddEntry((char*)"ReadType",   		&ReadType,		10);
 	AddEntry((char*)"OutputInterval",  	&Out_dt,		1);
 	AddEntry((char*)"MovingFrame",  	&MovingFrame,	1);
 	
-
-
-	Log("Domain: Read Parameters From ini File...");
+	Log("Domain: Read Parameters From .ini File...");
 	FILE *p_File = fopen(infile,"rt");
 	if (p_File)
 	{
@@ -52,12 +50,12 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	}
 	fclose(p_File); 
 
+
 	//normalize
 	dt     *= 2*Constant::PI;
 
-
 	//for the tick
-	step = 0.0;
+	step = 0;
 	d_tick = MaxStep/200.01;
 	n_out=n_tick=0;
 
@@ -103,8 +101,8 @@ void Domain::ReduceBunchSize()
 	BunchXiMin = bmin;
 	BunchXiMax = bmax;
 	
-	 Log("Domain::ReduceBunchSize(): Bunch Size in Moving Frame: [%.2f, %.2f].",bmin,bmax);
-	DLog("Domain::ReduceBunchSize(): Bunch Size in Moving Frame: [%.2f, %.2f].",bmin,bmax);
+	 Log("Domain::ReduceBunchSize(): Bunch Size (kp) in Moving Frame: [%.2f, %.2f].",bmin,bmax);
+	DLog("Domain::ReduceBunchSize(): Bunch Size (kp) in Moving Frame: [%.2f, %.2f].",bmin,bmax);
 
 }
 

@@ -53,7 +53,6 @@ void Log0(bool all, const char * fmt,...)
 }
 
 
-
 void LogDebug(const char * fmt,...)
 {
 
@@ -78,6 +77,7 @@ void LogDebug(const char * fmt,...)
 int Domain::ReadTrajectory()
 {
 	Log("Domain::ReadTrajectory--------------------");
+
 	string str = FILENAME;
 	char filename[128];
 
@@ -142,10 +142,8 @@ int Domain::ReadTrajectory()
 	//close
 	status = H5Fclose(file_id);
 
-	ALog("Domain::ReadTrajectory: Size of Particle Data: [%d Kilobytes]", N_read*Size_P/1024);
-	DLog("Domain::ReadTrajectory: Size of Particle Data: [%d Kilobytes]", N_read*Size_P/1024);
-
-	
+	ALog("Domain::ReadTrajectory: Size of Particle Data: [%d Kilobytes]", Size_P/1024);
+	DLog("Domain::ReadTrajectory: Size of Particle Data: [%d Kilobytes]", Size_P/1024);
 
 	return 0;
 
@@ -194,7 +192,7 @@ int Particle::Load(hid_t file_id, ULONG i)
 	H5Sget_simple_extent_dims(dspace, dims, NULL);
 	ULONG nt = dims[0];
 	//count the memory size
-	p_domain()->Size_P = max(p_domain()->Size_P,sizeof(Particle)+sizeof(Vec3)*2*nt);
+	p_domain()->Size_P += (sizeof(Particle)+sizeof(Vec3)*2*nt);
 
 
 	DLog("Particle::Load: Particle [%d] Total Steps [%d]",i, nt);
@@ -283,6 +281,8 @@ int Particle::Load(hid_t file_id, ULONG i)
 		DLog("Particle::Load: Failed at Particle [%i] start",i);
 		return 1;
 	}
+
+	ALog("Particle starting step, %d",(this->start));
 
 	this->Normalize();
 

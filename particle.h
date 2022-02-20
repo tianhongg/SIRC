@@ -38,21 +38,18 @@ private:
 
 	
 	
-	double weight;     // how many real unit charge;
+	double weight;     // how many real unit charges;
 
 	int start;	   //trajectory start step;
 
 	ULONG NStep; 	   //size of steps
-	ULONG Current_Step; 
+	ULONG Current_Step;  //current integration step
 
 	Vec3* Position;
 	Vec3* Velocity;
 
-	ULONG t_bin;
-	double xi;
-
-
-
+	ULONG t_bin; //time bin it belongs to
+	double xi;	//x-ct
 
 public:
 

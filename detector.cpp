@@ -36,7 +36,7 @@ Detector::Detector(char * infile): NList("Detector")
 	AddEntry((char*)"Energy_Scale", &Omega_Scale,   0);
 	AddEntry((char*)"Time_Grid",	&N_Time,		1);
 	
-	Log("Detector: Read Parameters From ini File...");
+	Log("Detector: Read Parameters From .ini File...");
 	FILE *p_File = fopen(infile,"rt");
 	if (p_File)
 	{
@@ -50,13 +50,15 @@ Detector::Detector(char * infile): NList("Detector")
 	N_Theta_Y = max(1,N_Theta_Y);
 	N_Theta_Z = max(1,N_Theta_Z);
 	N_Omega   = max(2,N_Omega);
-	N_Time = max(1,N_Time);
+	N_Time	  = max(1,N_Time);
 
 	Theta_Y_Max = max(0.0,min(Constant::PI,Theta_Y_Max));
 	Theta_Z_Max = max(0.0,min(Constant::PI,Theta_Z_Max));
-	Omega_Min = max(0.0,Omega_Min);
-	Omega_Max = max(Omega_Min+1,max(0.0,Omega_Max));
+	Omega_Min 	= max(1.0,Omega_Min);
+	Omega_Max 	= max(Omega_Min+1,Omega_Max);
 
+
+	//stick to odder number of grids for symmetry
 	if(N_Theta_Y>1)
 	{
 		N_Theta_Y/=2; N_Theta_Y = N_Theta_Y*2+1;
@@ -66,18 +68,20 @@ Detector::Detector(char * infile): NList("Detector")
 		N_Theta_Z/=2; N_Theta_Z = N_Theta_Z*2+1;
 	}
 
+
 	if(p_domain()->BunchXiMax==p_domain()->BunchXiMin) N_Time=1;
 	p_domain()->N_Time = N_Time;
 
 
 	// number of pixels
 	N_Pixel = N_Omega*N_Theta_Y*N_Theta_Z;
+	// size of pixel objects
 	int Size_P = (N_Pixel*sizeof(Pixel) + sizeof(dcom)*3*N_Time)/1024;
 
 	Log("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);
-	Log("Detector: which pixel has [%d] time_bins",	N_Time);
+	Log("Detector: --- each pixel has [%d] time_bins",	N_Time);
 	Log("Detector: Create [%d] Pixels...",N_Pixel);
-	Log("Detector: Size of All Pixels: [%d Kilobytes]", Size_P);
+	Log("Detector: Size of All Pixel Objs: [%d Kilobytes]", Size_P);
 
 
 	OmegaBin  = new double[N_Omega];
@@ -97,14 +101,14 @@ Detector::Detector(char * infile): NList("Detector")
 		}
 	}
 
-
+	//make the bin
 	if(N_Theta_Y>1)
 		for(int i=0; i<N_Theta_Y;i++)
 			ThetaYBin[i] = -Theta_Y_Max + 2*Theta_Y_Max/(N_Theta_Y-1)*i;
 	else
 		ThetaYBin[0]=0;
 
-	
+	//make the bin
 	if(N_Theta_Z>1)
 		for(int i=0; i<N_Theta_Z;i++)
 			ThetaZBin[i] = -Theta_Z_Max + 2*Theta_Z_Max/(N_Theta_Z-1)*i;
@@ -135,9 +139,7 @@ Detector::~Detector()
 	delete[] OmegaBin;
 
 	for(auto it : Pixels)
-	{
 		delete it;
-	}
 	Pixels.clear();
  
 }

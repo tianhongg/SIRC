@@ -43,14 +43,15 @@ private:
 	//Unit vector;
 	Vec3 n;
 
-	//
+	// number of time_bin
 	int N_Time;
 
-	dcom* Ix;
-	dcom* Iy;
-	dcom* Iz;
 
+	dcom* Ax;
+	dcom* Ay;
+	dcom* Az;
 
+	Domain *p_domain() {return Domain::p_Domain;}; 
 	Pixel(double omg, double ty, double tz, int timebin);
 	void OnDeposit(Particle* p);
 

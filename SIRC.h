@@ -48,7 +48,7 @@
 
 namespace Constant
 {
-	const dcom ci(0.0,1.0);
+	const dcom i(0.0,1.0);
 	const double PI = 3.14159265358979323846;
 }
 

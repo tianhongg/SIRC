@@ -37,10 +37,11 @@ public:
 
 	static Domain *p_Domain;
 
-	ULONG Size_P;
+	ULONG Size_P; //size of particle objs
+
 	double BunchXiMax;
 	double BunchXiMin;
-	int N_Time;
+	int N_Time;	//time bin sizes
  
 private:
 
@@ -58,7 +59,7 @@ private:
   	list<Particle*> Particles;
   	Detector* MyDetector;
 
-  	//for tic function;
+  	//misc: for tic function;
   	int n_out;
 	int n_tick;
 	double d_tick;
@@ -67,7 +68,7 @@ private:
 public: 
 
 	void Run();
-	int ReadTrajectory();
+	int  ReadTrajectory();
 	void OnCalculate();
 	void Tick();
 	void Output(int n);
@@ -75,8 +76,9 @@ public:
 	void TagParticles();
 
 	double GetDt() {return dt;}
-	int GetStep()  {return step;}
-	bool IsMovingFrame() {return MovingFrame==1? true:false;}
+	double GetTime() {return dt*step;}
+	int    GetStep()  {return step;}
+	bool   IsMovingFrame() {return MovingFrame==1? true:false;}
 
 	Domain(char *infile, int rank);  
 	~Domain();       

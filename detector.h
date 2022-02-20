@@ -30,14 +30,14 @@ class Detector : public NList
 
 private:
 
-	int N_Pixel;
+	int N_Pixel; //number of pixel
 
-	int N_Omega;
+	int N_Omega; // number of omega bin
 	int N_Theta_Y;
 	int N_Theta_Z;
-	int N_Time;
+	int N_Time; //number of time bin
 
-	int Omega_Scale;
+	int Omega_Scale;	//linear or log
 
 	double Theta_Y_Max;
 	double Theta_Z_Max;
