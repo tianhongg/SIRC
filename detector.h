@@ -45,9 +45,9 @@ private:
 	double Omega_Max;
 	double Omega_Min;
 
-	double * ThetaYBin;
-	double * ThetaZBin;
-	double * OmegaBin;
+	double* ThetaYBin;
+	double* ThetaZBin;
+	double* OmegaBin;
 
 	list<Pixel*> Pixels;
 

@@ -78,10 +78,13 @@ Detector::Detector(char * infile): NList("Detector")
 	// size of pixel objects
 	int Size_P = (N_Pixel*sizeof(Pixel) + sizeof(dcom)*3*N_Time)/1024;
 
-	Log("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);
-	Log("Detector: --- each pixel has [%d] time_bins",	N_Time);
-	Log("Detector: Create [%d] Pixels...",N_Pixel);
-	Log("Detector: Size of All Pixel Objs: [%d Kilobytes]", Size_P);
+	 Log("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);
+	DLog("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);
+	 Log("Detector: --- each pixel has [%d] time_bins",	N_Time);
+	DLog("Detector: --- each pixel has [%d] time_bins",	N_Time);
+	 Log("Detector: Create [%d] Pixels...",N_Pixel);
+	 Log("Detector: Size of All Pixel Objs: [%d Kilobytes]", Size_P);
+	DLog("Detector: Size of All Pixel Objs: [%d Kilobytes]", Size_P);
 
 
 	OmegaBin  = new double[N_Omega];

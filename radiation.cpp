@@ -60,7 +60,7 @@ void Pixel::OnDeposit(Particle* p)
 {	
 	double t  = p_domain()->GetTime();
 	double dt = p_domain()->GetDt();
-	dcom k = Constant::i*omega*dt*0.5;// i*omega*dt/2
+	dcom k = Constant::i*omega*dt*0.5*p->weight; // weight*i*omega*dt/2
 
 	//[1] calculate:   f = -nxnx\beta;
 	Vec3 vm = p->Velocity[p->Current_Step-1]; 
@@ -121,15 +121,16 @@ void Domain::Tick()
 		chrono::milliseconds diff = std::chrono::duration_cast<std::chrono::milliseconds>(toc - tic);
    		double delay = diff.count() / 1000.0;
 
-   		string fmt = "Domain::OnCalculate: [%5.1f%%] Time [%6.2f min "; 
+   		string fmt = "Domain::OnCalculate: [%5.1f%%] Time[%6.2f min "; 
 
-   		int n = n_tick/10;
+   		double prec = (step+1.0)/MaxStep*100;
+   		int n = prec*20.0/100.0;
    		for(int i=0; i<n;	i++) fmt+="*";
    		for(int i=0; i<20-n;i++) fmt+="-";
    		fmt+=" %6.2f min]"; 
-
-   		 Log(fmt.c_str(), n_tick/2.0, delay/60, 1.0*(200-n_tick)/n_tick*delay/60);
-   		DLog(fmt.c_str(), n_tick/2.0, delay/60, 1.0*(200-n_tick)/n_tick*delay/60); 
+   		
+   		 Log(fmt.c_str(), prec, delay/60, delay/60/prec*(100-prec));
+   		DLog(fmt.c_str(), prec, delay/60, delay/60/prec*(100-prec)); 
 	}
 
 	//output;

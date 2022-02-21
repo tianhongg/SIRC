@@ -28,13 +28,13 @@ string return_current_time_and_date()
 {
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
     std::stringstream ss;
     ss<<"[";
     ss<<setfill('0')<<setw(4)<<GlobalVars::Rank;
     ss << std::put_time(std::localtime(&in_time_t), "][%H:%M:%S] ");
     return ss.str();
 }
+
 void Log0(bool all, const char * fmt,...)
 {
 
@@ -51,7 +51,6 @@ void Log0(bool all, const char * fmt,...)
     vprintf( fmtn, arglist);
     va_end(arglist);
 }
-
 
 void LogDebug(const char * fmt,...)
 {
@@ -70,7 +69,7 @@ void LogDebug(const char * fmt,...)
     va_start( arglist, fmt );
     vfprintf(GlobalVars::LogFile,fmtn, arglist);
     va_end(arglist);
-
+    fflush(GlobalVars::LogFile);
 }
 
 
@@ -282,28 +281,222 @@ int Particle::Load(hid_t file_id, ULONG i)
 		return 1;
 	}
 
-	ALog("Particle starting step, %d",(this->start));
+	// ALog("Particle starting step, %d",(this->start));
 
 	this->Normalize();
 
-	// if(i==0)
-	// {
-	// 	printf("\n[%d,%d]\n",(int)this->weight,(int)this->start);
-			
-	// 	for(int t=0;t<2;t++)
-	// 	{
-	// 		printf("[%4.2f,%4.2f,%4.2f]\n",Velocity[t].x,Velocity[t].y,Position[t].x);
-	// 	}
-	// }
 
 	return 0;
 }
 
 
+int WriteHDF5RecordDOUBLE(hid_t file, const char* dataname, int nfields, double *source);
+
 void Domain::Output(int n)
 {
 
+	Log("Domain::Output...");
+
+	// d^2I/domega/dOmega = e^2/(4*pi^2*c); 
+	// here we output  d^2I/domega/dOmega when omega is normalized by laser wavelength 
+	// so the prefactor is (mc^2) re/lambda_L/2/pi
+	// output in the unit of mc^2 (let's convert it to eV)
+	// and convert mc^2 to eV.
+
+	// radius of electron, divided by laser wavelength, then convert to keV/
+	double re = 2.8179403227e-9/(this->lambda_L)/2/Constant::PI*0.51099895e-3;
+
+	//output will be  re*|A|^2;
+	// and I prefer to output A.real and A.imag
+
+	hid_t   file, fdataset, fdataspace; 
+	hsize_t  dimsfi[0], dimsf[4]; 
+	hid_t rank4 = 4;
+	herr_t     status;
+	char fname[128];
+	//create file
+	if(Rank==0)
+	{
+		sprintf(fname,"Synchrotron_%05d_.h5",n);
+		Log("Domain::Output: Create File: %s",fname);
+		file = H5Fcreate(fname, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+
+		//
+		DLog("Domain::Output: Write E_Bin, Unit eV...");
+		double* Axis = new double[MyDetector->N_Omega];
+
+		for(ULONG i=0; i<MyDetector->N_Omega; i++)
+			Axis[i] = (MyDetector->OmegaBin[i])*1.2398/lambda_L;
+
+		dimsfi[0] = MyDetector->N_Omega;
+		WriteHDF5RecordDOUBLE(file, "Energy[eV]", dimsfi[0], Axis);
+		delete[] Axis;
+		//
+		DLog("Domain::Output: Write Theta_Y_Bin");
+		dimsfi[0] = MyDetector->N_Theta_Y;
+		WriteHDF5RecordDOUBLE(file, "ThetaY", dimsfi[0], MyDetector->ThetaYBin);
+		//
+		DLog("Domain::Output: Write Theta_Z_Bin");
+		dimsfi[0] = MyDetector->N_Theta_Z;
+		WriteHDF5RecordDOUBLE(file, "ThetaZ", dimsfi[0], MyDetector->ThetaZBin);
+
+		//
+		if(N_Time>1)
+		{
+			DLog("Domain::Output: Write Time_Bin Unit fs...");
+			Axis = new double[MyDetector->N_Time];
+
+			double dxi = (BunchXiMax-BunchXiMin)/(N_Time-1);
+			for(ULONG i=0;  i<MyDetector->N_Time; i++)
+				Axis[i] = (-dxi*i)*(lambda_L*10/3.0);
+
+			dimsfi[0] = MyDetector->N_Time;
+			WriteHDF5RecordDOUBLE(file, "Time[fs]", dimsfi[0], Axis);
+			delete[] Axis;
+		}
 
 
-	
+		DLog("Domain::Output: Create Dataspace");
+		dimsf[0] = MyDetector->N_Omega;
+		dimsf[1] = MyDetector->N_Theta_Y;
+		dimsf[2] = MyDetector->N_Theta_Z;
+		dimsf[3] = MyDetector->N_Time;
+		fdataspace = H5Screate_simple(rank4, dimsf, NULL); 
+		
+	}
+	//gather data;
+	 Log("Domain::Output: Gather Data...");
+	DLog("Domain::Output: Gather Data...");
+
+	//declare data
+	double* local_A; 
+	double* global_A; 
+	int N_Buffer = (MyDetector->N_Omega)*(MyDetector->N_Theta_Y)*(MyDetector->N_Theta_Z)*(MyDetector->N_Time);
+
+	DLog("Domain::Output: Data Buffer Size Needed [%d Kilobytes]:", N_Buffer*sizeof(double)*2/1024);
+
+	local_A  = new double[N_Buffer];
+	global_A = new double[N_Buffer];
+
+
+	// load data real(Ax)
+	int k = 0;
+	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
+		for(int i=0; i<N_Time; i++)
+			local_A[k++] = (*it)->Ax[i].real()*re;
+	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	if(Rank==0)
+	{
+		DLog("Domain::Output: Write Ax.real()");
+    	fdataset = H5Dcreate(file, "Ax_R", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
+    	status = H5Dclose(fdataset);
+	}
+	// load data imag(Ax)
+	k = 0;
+	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
+		for(int i=0; i<N_Time; i++)
+			local_A[k++] = (*it)->Ax[i].imag()*re;
+	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	if(Rank==0)
+	{
+		DLog("Domain::Output: Write Ax.imag()");
+    	fdataset = H5Dcreate(file, "Ax_I", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
+    	status = H5Dclose(fdataset);
+    }
+
+    // load data real(Ay)
+	k = 0;
+	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
+		for(int i=0; i<N_Time; i++)
+			local_A[k++] = (*it)->Ay[i].real()*re;
+	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	if(Rank==0)
+	{
+		DLog("Domain::Output: Write Ay.real()");
+    	fdataset = H5Dcreate(file, "Ay_R", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
+    	status = H5Dclose(fdataset);
+	}
+	// load data imag(Ay)
+	k = 0;
+	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
+		for(int i=0; i<N_Time; i++)
+			local_A[k++] = (*it)->Ay[i].imag()*re;
+	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	if(Rank==0)
+	{
+		DLog("Domain::Output: Write Ay.imag()");
+    	fdataset = H5Dcreate(file, "Ay_I", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
+    	status = H5Dclose(fdataset);
+    }
+
+    // load data real(Az)
+	k = 0;
+	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
+		for(int i=0; i<N_Time; i++)
+			local_A[k++] = (*it)->Az[i].real()*re;
+	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	if(Rank==0)
+	{
+		DLog("Domain::Output: Write Az.real()");
+    	fdataset = H5Dcreate(file, "Az_R", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
+    	status = H5Dclose(fdataset);
+	}
+	// load data imag(Az)
+	k = 0;
+	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
+		for(int i=0; i<N_Time; i++)
+			local_A[k++] = (*it)->Az[i].imag()*re;
+	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	if(Rank==0)
+	{
+		DLog("Domain::Output: Write Az.imag()");
+    	fdataset = H5Dcreate(file, "Az_I", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
+    	status = H5Dclose(fdataset);
+    }
+
+    //close
+	if(Rank==0)
+	{
+		Log("Domain::Output: Close File: %s",fname);
+    	status = H5Fclose(file);
+    	status = H5Sclose(fdataspace);
+	}    
+    
+
+	delete[] local_A;
+	delete[] global_A; 
+
+}
+
+
+int WriteHDF5RecordDOUBLE(hid_t file, const char* dataname, int nfields, double *source)
+{
+   hid_t rank1 = 1;
+   hsize_t dimsfi[3];
+   hid_t       dataset;         /* File and dataset            */
+   hid_t       dataspace;   /* Dataspace handles           */
+   herr_t      status;                /* Error checking              */
+
+   assert (file >= 0);
+
+   dimsfi[0] = nfields;
+   dataspace = H5Screate_simple(rank1, dimsfi, NULL); 
+   assert (dataspace >= 0);
+   dataset = H5Dcreate(file, dataname, H5T_IEEE_F64LE, dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+   assert (dataset >= 0);
+   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+      H5P_DEFAULT, source);
+   assert (status >= 0);
+   status = H5Dclose(dataset);
+   assert (status >= 0);
+   status = H5Sclose(dataspace);
+   assert (status >= 0);
+   int istatus = status;
+   return istatus;
 }

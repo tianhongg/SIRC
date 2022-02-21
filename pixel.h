@@ -46,7 +46,7 @@ private:
 	// number of time_bin
 	int N_Time;
 
-
+	
 	dcom* Ax;
 	dcom* Ay;
 	dcom* Az;
