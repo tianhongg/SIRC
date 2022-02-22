@@ -27,7 +27,9 @@ void Particle::Normalize()
 
 	for(int i=0; i<NStep; i++)
 	{
-		Position[i] *= (2*Constant::PI);
+		if(p_domain()->IfNormalization())
+			Position[i] *= (2*Constant::PI);
+		
 		Velocity[i] /= (sqrt(1.0+Velocity[i].abs2()));
 
 		if(p_domain()->IsMovingFrame())

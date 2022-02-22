@@ -40,6 +40,7 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	AddEntry((char*)"ReadType",   		&ReadType,		10);
 	AddEntry((char*)"OutputInterval",  	&Out_dt,		1);
 	AddEntry((char*)"MovingFrame",  	&MovingFrame,	1);
+	AddEntry((char*)"Normalization",  	&Normalization,	1);
 	
 	Log("Domain: Read Parameters From .ini File...");
 	FILE *p_File = fopen(infile,"rt");
@@ -52,7 +53,8 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 
 
 	//normalize
-	dt     *= 2*Constant::PI;
+	if(Normalization)
+		dt     *= 2*Constant::PI;
 
 	//for the tick
 	step = 0;

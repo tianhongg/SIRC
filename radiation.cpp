@@ -84,11 +84,11 @@ void Pixel::OnDeposit(Particle* p)
 	//[3] calculate f1 f2 f3; g1, g2, g3
 	Vec3 f1 = fc;
 	Vec3 f2 = (fp-fm)/4.0;
-	// Vec3 f3 = (fp-fc*2.0+fm)/4.0;
+	// Vec3 f3 = (fp-fc*2.0+fm)/8.0;
 
 	double g1 = gc;
 	double g2 = (gp-gm)/4.0;
-	// double g3 = (gp-gc*2.0+gm)/4.0;
+	// double g3 = (gp-gc*2.0+gm)/8.0;
 
 
 	//2nd-order?
