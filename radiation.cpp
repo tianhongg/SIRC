@@ -60,21 +60,20 @@ void Pixel::OnDeposit(Particle* p)
 {	
 	double t  = p_domain()->GetTime();
 	double dt = p_domain()->GetDt();
-	dcom k = Constant::i*omega*dt*0.5*p->weight; // weight*i*omega*dt/2
+	dcom k = dt*0.5*(p->weight); // weight*dt/2
 
 	//[1] calculate:   f = -nxnx\beta;
 	Vec3 vm = p->Velocity[p->Current_Step-1]; 
-	Vec3 vc = p->Velocity[p->Current_Step];
+	Vec3 vc = p->Velocity[p->Current_Step  ];
 	Vec3 vp = p->Velocity[p->Current_Step+1];
 
 	Vec3 fm = -(n.Cross(n.Cross(vm)));
 	Vec3 fc = -(n.Cross(n.Cross(vc)));
 	Vec3 fp = -(n.Cross(n.Cross(vp)));
 
-
 	//[2] calculate:   g =  t-n*r;
 	Vec3 rm = p->Position[p->Current_Step-1]; 
-	Vec3 rc = p->Position[p->Current_Step];
+	Vec3 rc = p->Position[p->Current_Step  ];
 	Vec3 rp = p->Position[p->Current_Step+1];
 
 	double gm = - (n.Dot(rm)) + t;
@@ -91,7 +90,7 @@ void Pixel::OnDeposit(Particle* p)
 	// double g3 = (gp-gc*2.0+gm)/8.0;
 
 
-	//2nd-order?
+	//1nd-order is ok?
 	if(abs(g2)==0)
 	{
 		dcom tmp = (k*2.0*Constant::i)*exp(Constant::i*g1*omega)*omega;

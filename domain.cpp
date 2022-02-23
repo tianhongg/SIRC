@@ -37,7 +37,7 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	AddEntry((char*)"TStep", 			&dt,			1.0);
 	AddEntry((char*)"MaxSteps",  		&MaxStep,		10);
 	AddEntry((char*)"Wavelength", 		&lambda_L,		1.0);
-	AddEntry((char*)"ReadType",   		&ReadType,		10);
+	AddEntry((char*)"ReadType",   		&ReadType,		1);
 	AddEntry((char*)"OutputInterval",  	&Out_dt,		1);
 	AddEntry((char*)"MovingFrame",  	&MovingFrame,	1);
 	AddEntry((char*)"Normalization",  	&Normalization,	1);
@@ -54,7 +54,7 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 
 	//normalize
 	if(Normalization)
-		dt     *= 2*Constant::PI;
+		dt *= 2*Constant::PI;
 
 	//for the tick
 	step = 0;

@@ -126,7 +126,7 @@ Detector::Detector(char * infile): NList("Detector")
 		{
 			for(int k=0; k<N_Theta_Z;k++)
 			{
-				Pixels.push_back( new Pixel(OmegaBin[i],ThetaYBin[j], ThetaZBin[k], N_Time));
+				Pixels.push_back( new Pixel(OmegaBin[i], ThetaYBin[j], ThetaZBin[k], N_Time));
 			}
 		}
 

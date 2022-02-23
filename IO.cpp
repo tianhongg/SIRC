@@ -128,6 +128,9 @@ int Domain::ReadTrajectory()
 	ALog("Domain::ReadTrajectory: Reading [%d] Trajectories; Range [%d -> %d]", N_read, Idx_read, Idx_read+N_read-1);
 	DLog("Domain::ReadTrajectory: Reading [%d] Trajectories; Range [%d -> %d]", N_read, Idx_read, Idx_read+N_read-1);
 
+	ALog("Domain::ReadTrajectory: Estimated Size of Particle Data: [%d Kilobytes]", (sizeof(Particle)+sizeof(Vec3)*2*MaxStep)*N_read/1024);
+	DLog("Domain::ReadTrajectory: Estimated Size of Particle Data: [%d Kilobytes]", (sizeof(Particle)+sizeof(Vec3)*2*MaxStep)*N_read/1024);
+
 	for(ULONG i=0; i<N_read; i++)
 	{
 		Particle* OneParticle = new Electron();
@@ -303,8 +306,9 @@ void Domain::Output(int n)
 	// output in the unit of mc^2 (let's convert it to eV)
 	// and convert mc^2 to eV.
 
-	// radius of electron, divided by laser wavelength, then convert to keV/
-	double re = 2.8179403227e-9/(this->lambda_L)/2/Constant::PI*0.51099895e-3;
+	// radius of electron, divided by laser wavelength, then convert to eV/
+	double re = 2.8179403227e-9/(this->lambda_L)/2/Constant::PI*0.51099895e6;
+	re = sqrt(re);
 
 	//output will be  re*|A|^2;
 	// and I prefer to output A.real and A.imag

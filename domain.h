@@ -79,8 +79,8 @@ public:
 	double GetDt() {return dt;}
 	double GetTime() {return dt*step;}
 	int    GetStep()  {return step;}
-	bool   IsMovingFrame() {return MovingFrame==1? true:false;}
-	bool   IfNormalization() {return Normalization==1? true:false;}
+	bool   IsMovingFrame()   {return MovingFrame   == 1? true:false;}
+	bool   IfNormalization() {return Normalization == 1? true:false;}
 
 	Domain(char *infile, int rank);  
 	~Domain();       
