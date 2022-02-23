@@ -53,7 +53,7 @@ private:
 
 	Domain *p_domain() {return Domain::p_Domain;}; 
 	Pixel(double omg, double ty, double tz, int timebin);
-	void OnDeposit(Particle* p);
+	void OnDeposit(Particle* p, int substep=0, int Refine=1);
 
   	~Pixel();
 

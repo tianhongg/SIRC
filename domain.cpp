@@ -36,6 +36,7 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 
 	AddEntry((char*)"TStep", 			&dt,			1.0);
 	AddEntry((char*)"MaxSteps",  		&MaxStep,		10);
+	AddEntry((char*)"StepRefine",  		&Refine,		1);
 	AddEntry((char*)"Wavelength", 		&lambda_L,		1.0);
 	AddEntry((char*)"ReadType",   		&ReadType,		1);
 	AddEntry((char*)"OutputInterval",  	&Out_dt,		1);
@@ -51,6 +52,7 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	}
 	fclose(p_File); 
 
+	Refine = max(1,Refine);
 
 	//normalize
 	if(Normalization)

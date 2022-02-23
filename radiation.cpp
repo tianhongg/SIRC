@@ -52,11 +52,13 @@ void Domain::OnCalculate()
 
 void Detector::OnDeposit(Particle* p)
 {
+	int R = p_domain()->GetRefine();
 	for(auto it = Pixels.begin(); it!=Pixels.end(); it++)
-		(*it)->OnDeposit(p);
+		for (int r=0; r<R; r++)
+			(*it)->OnDeposit(p,r,R);
 }
 
-void Pixel::OnDeposit(Particle* p)
+void Pixel::OnDeposit(Particle* p, int substep, int Refine)
 {	
 	double t  = p_domain()->GetTime();
 	double dt = p_domain()->GetDt();

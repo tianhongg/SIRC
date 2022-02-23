@@ -53,6 +53,7 @@ private:
   	int MaxStep;
   	int Out_dt;
   	int step;
+  	int Refine; //step refinement; int
   	
   	int MovingFrame;
   	int Normalization;
@@ -78,7 +79,8 @@ public:
 
 	double GetDt() {return dt;}
 	double GetTime() {return dt*step;}
-	int    GetStep()  {return step;}
+	int    GetStep()   {return step;}
+	int    GetRefine() {return Refine;}
 	bool   IsMovingFrame()   {return MovingFrame   == 1? true:false;}
 	bool   IfNormalization() {return Normalization == 1? true:false;}
 
