@@ -91,6 +91,7 @@ public:
 		return *this;
 	}
 
+
 	Vec3& operator*=(double d)
 	{
 		x *= d;
