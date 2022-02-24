@@ -25,6 +25,7 @@
 
 #define dcom std::complex<double>
 #define ULONG unsigned long
+#define ErfError 1e-12
 
 
 #include <mpi.h>

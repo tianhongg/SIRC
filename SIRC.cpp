@@ -61,6 +61,8 @@ int main(int argc, char** argv)
 	Domain *domain = new Domain((char*)"SIRC.ini",Rank);
 	domain-> Run();
 	
+	// Log("%f" ,domain->tmpCounter*1.0/domain->tmpCounter2);
+
 	delete domain;
 
 

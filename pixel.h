@@ -40,6 +40,8 @@ private:
 	double theta_z;
 	double omega;
 
+	Detector* MyDetector;
+
 	//Unit vector;
 	Vec3 n;
 
@@ -51,8 +53,13 @@ private:
 	dcom* Ay;
 	dcom* Az;
 
+	//for start/end points
+	dcom A1x[2];
+	dcom A1y[2];
+	dcom A1z[2];
+
 	Domain *p_domain() {return Domain::p_Domain;}; 
-	Pixel(double omg, double ty, double tz, int timebin);
+	Pixel(double omg, double ty, double tz, int timebin, Detector* pd);
 	void OnDeposit(Particle* p, int substep=0, int Refine=1);
 
   	~Pixel();

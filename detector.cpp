@@ -35,6 +35,8 @@ Detector::Detector(char * infile): NList("Detector")
 	AddEntry((char*)"OmegaGrid", 	&N_Omega,		10);
 	AddEntry((char*)"Energy_Scale", &Omega_Scale,   0);
 	AddEntry((char*)"Time_Grid",	&N_Time,		1);
+	AddEntry((char*)"Distance",		&Distance,		1e5);
+	
 	
 	Log("Detector: Read Parameters From .ini File...");
 	FILE *p_File = fopen(infile,"rt");
@@ -57,6 +59,9 @@ Detector::Detector(char * infile): NList("Detector")
 	Omega_Min 	= max(1.0,Omega_Min);
 	Omega_Max 	= max(Omega_Min+1,Omega_Max);
 
+	//normalize
+	if(p_domain()->IfNormalization())
+		Distance *= 2*Constant::PI;
 
 	//stick to odder number of grids for symmetry
 	if(N_Theta_Y>1)
@@ -126,7 +131,7 @@ Detector::Detector(char * infile): NList("Detector")
 		{
 			for(int k=0; k<N_Theta_Z;k++)
 			{
-				Pixels.push_back( new Pixel(OmegaBin[i], ThetaYBin[j], ThetaZBin[k], N_Time));
+				Pixels.push_back( new Pixel(OmegaBin[i], ThetaYBin[j], ThetaZBin[k], N_Time, this));
 			}
 		}
 

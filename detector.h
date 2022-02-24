@@ -27,7 +27,7 @@ class Domain;
 class Detector : public NList
 {
 	friend class Domain;
-
+	friend class Pixel;
 private:
 
 	int N_Pixel; //number of pixel
@@ -48,6 +48,8 @@ private:
 	double* ThetaYBin;
 	double* ThetaZBin;
 	double* OmegaBin;
+
+	double Distance;
 
 	list<Pixel*> Pixels;
 

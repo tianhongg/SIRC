@@ -126,3 +126,26 @@ public:
 	}
 
 };
+
+
+
+class CVec3
+{
+
+public:
+
+	dcom x;
+	dcom y;
+	dcom z;
+
+
+	//--------------------------
+	CVec3(){;};
+	CVec3(dcom x0, dcom y0, dcom z0)
+	{
+		x=x0;
+		y=y0;
+		z=z0;
+	}
+
+};

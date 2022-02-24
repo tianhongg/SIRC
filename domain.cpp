@@ -41,7 +41,9 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	AddEntry((char*)"ReadType",   		&ReadType,		1);
 	AddEntry((char*)"OutputInterval",  	&Out_dt,		1);
 	AddEntry((char*)"MovingFrame",  	&MovingFrame,	1);
+	AddEntry((char*)"InputType",  		&InputType,		1);
 	AddEntry((char*)"Normalization",  	&Normalization,	1);
+	AddEntry((char*)"IntegrateOrder",  	&IntegrateOrder, 2);
 	
 	Log("Domain: Read Parameters From .ini File...");
 	FILE *p_File = fopen(infile,"rt");
@@ -53,6 +55,9 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	fclose(p_File); 
 
 	Refine = max(1,Refine);
+
+	if(IntegrateOrder<1) IntegrateOrder=1;
+	if(IntegrateOrder>2) IntegrateOrder=2;
 
 	//normalize
 	if(Normalization)

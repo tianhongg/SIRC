@@ -56,7 +56,9 @@ private:
   	int Refine; //step refinement; int
   	
   	int MovingFrame;
+  	int InputType;
   	int Normalization;
+  	int IntegrateOrder;
 
   	list<Particle*> Particles;
   	Detector* MyDetector;
@@ -69,6 +71,9 @@ private:
 
 public: 
 
+	int tmpCounter=0;
+	int tmpCounter2=0;
+	
 	void Run();
 	int  ReadTrajectory();
 	void OnCalculate();
@@ -81,8 +86,10 @@ public:
 	double GetTime() {return dt*step;}
 	int    GetStep()   {return step;}
 	int    GetRefine() {return Refine;}
+	int    GetIntegrateOrder() {return IntegrateOrder;}
 	bool   IsMovingFrame()   {return MovingFrame   == 1? true:false;}
 	bool   IfNormalization() {return Normalization == 1? true:false;}
+	bool   IfInputIsP() {return InputType == 1? true:false;}
 
 	Domain(char *infile, int rank);  
 	~Domain();       

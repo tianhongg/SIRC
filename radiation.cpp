@@ -22,8 +22,9 @@
 
 
 #include "SIRC.h"
-// #include <unistd.h>
+#include "Faddeeva.h"
 
+dcom ComputeA(double f1, double f2, double f3, double g1, double g2, double g3, double omega, int order);
 
 void Domain::OnCalculate()
 {
@@ -42,8 +43,11 @@ void Domain::OnCalculate()
 			Particle* p = *it;
 			//trajectory may have different starting time and length
 			// so checck if the trajectory is in frame;
+
+			if(p->start==step)
+
 			if(p->IsInFrame(step)==false) continue;
-			MyDetector->OnDeposit(p);
+				MyDetector->OnDeposit(p);
 		}
 
 	}
@@ -52,13 +56,111 @@ void Domain::OnCalculate()
 
 void Detector::OnDeposit(Particle* p)
 {
-	int R = p_domain()->GetRefine();
 	for(auto it = Pixels.begin(); it!=Pixels.end(); it++)
 		(*it)->OnDeposit(p);
 
+}
 
-		// for (int s=0; s<R; s++)
-			// (*it)->OnDeposit(p,s,R);
+
+
+void Pixel::OnDeposit(Particle* p,int substep, int Refine)
+{	
+
+	// substep and refine is not used in this version, since they may not be useful
+	// double D = MyDetector->Distance;
+
+	double t  = p_domain()->GetTime();
+	double dt = p_domain()->GetDt();
+	int order = p_domain()->GetIntegrateOrder();
+	dcom k = dt*0.5*(p->weight); // weight*dt/2
+
+	// caclulate angle nn;
+
+	//[1] calculate:   f = -nxnx\beta;
+	Vec3 vm = p->Velocity[p->Current_Step-1]; 
+	Vec3 vc = p->Velocity[p->Current_Step  ];
+	Vec3 vp = p->Velocity[p->Current_Step+1];
+
+	Vec3 fm = -(n.Cross(n.Cross(vm)));
+	Vec3 fc = -(n.Cross(n.Cross(vc)));
+	Vec3 fp = -(n.Cross(n.Cross(vp)));
+
+	//[2] calculate:   g =  t-n*r;
+	Vec3 rm = p->Position[p->Current_Step-1]; 
+	Vec3 rc = p->Position[p->Current_Step  ];
+	Vec3 rp = p->Position[p->Current_Step+1];
+
+	double gm = - (n.Dot(rm)) + t-dt;
+	double gc = - (n.Dot(rc)) + t;
+	double gp = - (n.Dot(rp)) + t+dt;
+
+	//[3] calculate f1 f2 f3; g1, g2, g3
+	Vec3 f1 = fc;
+	Vec3 f2 = (fp-fm)/4.0;
+	Vec3 f3 = (fp-fc*2.0+fm)/8.0;
+
+	double g1 = gc;
+	double g2 = (gp-gm)/4.0;
+	double g3 = (gp-gc*2.0+gm)/8.0;
+
+	//[4] calculate A
+	dcom Ax = ComputeA(f1.x, f2.x, f3.x, g1, g2, g3, omega, order);
+	dcom Ay = ComputeA(f1.y, f2.y, f3.y, g1, g2, g3, omega, order);
+	dcom Az = ComputeA(f1.z, f2.z, f3.z, g1, g2, g3, omega, order);
+
+	this->Ax[p->t_bin] += k*exp(Constant::i*g1*omega)*Ax;
+	this->Ay[p->t_bin] += k*exp(Constant::i*g1*omega)*Ay;
+	this->Az[p->t_bin] += k*exp(Constant::i*g1*omega)*Az;
+
+}
+
+
+dcom ComputeA(double f1, double f2, double f3, double g1, double g2, double g3, double omega, int order)
+{
+
+	dcom A;
+	dcom I = Constant::i;
+
+	dcom One(1.0,0.0); //careful for the sqrt
+
+	double PI = Constant::PI;
+	double g2w = g2*omega; 
+
+
+	if(abs(g3)==0 || order==1)
+	{
+		if(abs(g2)==0) //g2=0 g3=0
+		{
+			dcom tmp = (2.0*I)*omega;
+			A = tmp*(f1+f3/3.0);
+		}
+		else
+		{	
+			
+			dcom tmp = 2.0/(g2*g2w*g2w);
+			A = g2w*(2.0*I*f3+f2*g2w)*cos(g2w)+I*(-2.0*f3+I*f2*g2w+(f1+f3)*g2w*g2w)*sin(g2w);
+			A = A*tmp;
+		}
+	}
+	else
+	{
+		
+		dcom tmp = 0.125/sqrt(One*g3)/g3/g3*exp(-I*g2*g2*omega/4.0/g3);
+
+		dcom e1 = I*sqrt(I*omega/g3)*(g2-2.0*g3)/2.0;
+		dcom e2 = I*sqrt(I*omega/g3)*(g2+2.0*g3)/2.0;
+		e1 = Faddeeva::erf(e1);
+		e2 = Faddeeva::erf(e2);
+			
+		A = I*sqrt(I*PI/omega)*(2.0*I*f3*g3+f3*g2*g2w-2.0*f2*g3*g2w+4.0*f1*g3*g3*omega)*(e1-e2);
+		
+		A += 4.0*exp(I*(g2*g2+4.0*g3*g3)*omega/4.0/g3)*sqrt(One*g3)*(2.0*f3*g3*cos(g2w)-I*(f3*g2-2.0*f2*g3)*sin(g2w));
+		A *= tmp;
+
+	}
+
+
+	return A;
 }
 
 
@@ -121,66 +223,10 @@ void Detector::OnDeposit(Particle* p)
 // }
 
 
-
-void Pixel::OnDeposit(Particle* p,int substep, int Refine)
-{	
-	double t  = p_domain()->GetTime();
-	double dt = p_domain()->GetDt();
-	dcom k = dt*0.5*(p->weight); // weight*dt/2
-
-	//[1] calculate:   f = -nxnx\beta;
-	Vec3 vm = p->Velocity[p->Current_Step-1]; 
-	Vec3 vc = p->Velocity[p->Current_Step  ];
-	Vec3 vp = p->Velocity[p->Current_Step+1];
-
-	Vec3 fm = -(n.Cross(n.Cross(vm)));
-	Vec3 fc = -(n.Cross(n.Cross(vc)));
-	Vec3 fp = -(n.Cross(n.Cross(vp)));
-
-	//[2] calculate:   g =  t-n*r;
-	Vec3 rm = p->Position[p->Current_Step-1]; 
-	Vec3 rc = p->Position[p->Current_Step  ];
-	Vec3 rp = p->Position[p->Current_Step+1];
-
-	double gm = - (n.Dot(rm)) + t-dt;
-	double gc = - (n.Dot(rc)) + t;
-	double gp = - (n.Dot(rp)) + t+dt;
-
-	//[3] calculate f1 f2 f3; g1, g2, g3
-	Vec3 f1 = fc;
-	Vec3 f2 = (fp-fm)/4.0;
-	// Vec3 f3 = (fp-fc*2.0+fm)/8.0;
-
-	double g1 = gc;
-	double g2 = (gp-gm)/4.0;
-	// double g3 = (gp-gc*2.0+gm)/8.0;
-
-
-	//1nd-order is ok
-	if(abs(g2)==0)
-	{
-		dcom tmp = (k*2.0*Constant::i)*exp(Constant::i*g1*omega)*omega;
-		this->Ax[p->t_bin] += tmp*f1.x;
-		this->Ay[p->t_bin] += tmp*f1.y;
-		this->Az[p->t_bin] += tmp*f1.z;
-	}
-	else
-	{	
-		dcom tmp =(k*2.0)*exp(Constant::i*g1*omega)/(g2*g2*omega);
-		this->Ax[p->t_bin] += tmp*(f2.x*g2*omega*cos(g2*omega)-(f2.x-Constant::i*f1.x*g2*omega)*sin(g2*omega));
-		this->Ay[p->t_bin] += tmp*(f2.y*g2*omega*cos(g2*omega)-(f2.y-Constant::i*f1.y*g2*omega)*sin(g2*omega));
-		this->Az[p->t_bin] += tmp*(f2.z*g2*omega*cos(g2*omega)-(f2.z-Constant::i*f1.z*g2*omega)*sin(g2*omega));
-	}
-
-}
-
-
-
 //=====================================================================
 void Domain::Tick()
 {
 	//tick
-	// usleep(50000);
 	if(step>=(n_tick)*d_tick)
 	{
 		n_tick++;
@@ -207,3 +253,5 @@ void Domain::Tick()
 		this->Output(n_out);
 	}
 }
+
+
