@@ -114,12 +114,11 @@ void Domain::ReduceBunchSize()
 void Domain::TagParticles()
 {
 
+	if(N_Time==1) return;
+
 	for(auto it = Particles.begin(); it!=Particles.end(); it++)
 	{
-		Particle * p = *it;
-
-		if(N_Time==1) continue;
-		
+		Particle * p = *it;		
 		double dxi = (BunchXiMax-BunchXiMin)/(N_Time-1);
 		p->t_bin = (ULONG)floor((p->xi - BunchXiMin)/dxi);
 	}

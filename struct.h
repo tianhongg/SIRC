@@ -33,11 +33,7 @@ public:
 	//--------------------------
 	Vec3 operator-(void)
 	{
-		Vec3 tmp; 
-		tmp.x = -x;
-		tmp.y = -y;
-		tmp.z = -z;
-		return tmp;
+		return Vec3(-x,-y,-z);
 	}
 
 	//--------------------------
