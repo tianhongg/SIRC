@@ -19,8 +19,6 @@
 //----------------------------------------------------------------------------------||
 
 
-
-
 #include "SIRC.h"
 #include "Faddeeva.h"
 
@@ -35,6 +33,8 @@ void Domain::OnCalculate()
 	//time loop
 	for(step = 0; step<MaxStep; step++)
 	{
+
+		//should be infront of the p loop
 		this->Tick();
 
 		//particle loop
@@ -44,13 +44,41 @@ void Domain::OnCalculate()
 			//trajectory may have different starting time and length
 			// so checck if the trajectory is in frame;
 
+			//starting point;
 			if(p->start==step)
+				MyDetector->OnDeposit(p, Node::Start);
 
+			//integrate
 			if(p->IsInFrame(step)==false) continue;
 				MyDetector->OnDeposit(p);
 		}
 
 	}
+}
+
+// first part: end point
+void Domain::OnCalculateEndPoint()
+{
+	Log("Domain::OnCalculateEndPoint--------------------");
+
+	//Clean the End Point Contribution;
+	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
+		(*it)->CleanA1();
+	
+	for(auto it = Particles.begin(); it!=Particles.end(); it++)
+	{
+		Particle* p = *it;
+		if(step<=p->start) continue;
+		MyDetector->OnDeposit(p, Node::End);
+	}
+
+}
+
+
+void Detector::OnDeposit(Particle* p, Node which)
+{
+	for(auto it = Pixels.begin(); it!=Pixels.end(); it++)
+		(*it)->OnDeposit(p,which);
 }
 
 
@@ -61,7 +89,37 @@ void Detector::OnDeposit(Particle* p)
 
 }
 
+void Pixel::OnDeposit(Particle* p, Node which)
+{
+	return;
+	int step = which==Node::Start? 0:min(p->NStep-1,p->Current_Step+1);
 
+	double t  = p_domain()->GetTime();
+
+	Vec3 vc = p->Velocity[step];
+	Vec3 rc = p->Position[step];
+
+	Vec3 fc = (n.Cross(n.Cross(vc)));
+	double gc = - (n.Dot(rc)) + t;
+	double bc = 1-vc.Dot(n);
+
+	dcom tmp = exp(Constant::i*omega*gc)/bc;
+	CVec3 A(fc.x*tmp, fc.y*tmp, fc.z*tmp);
+
+	if(which==Node::Start)
+	{
+		this->Ax[p->t_bin]  += -A.x;
+		this->Ay[p->t_bin]  += -A.y;
+		this->Az[p->t_bin]  += -A.z;
+	}
+	else //end point
+	{
+		this->A1x[p->t_bin] += A.x;
+		this->A1y[p->t_bin] += A.y;
+		this->A1z[p->t_bin] += A.z;
+	}
+
+}	
 
 void Pixel::OnDeposit(Particle* p,int substep, int Refine)
 {	
@@ -142,7 +200,7 @@ dcom ComputeA(double f1, double f2, double f3, double g1, double g2, double g3, 
 			A = A*tmp;
 		}
 	}
-	else
+	else //2nd order
 	{
 		
 		dcom tmp = 0.125/sqrt(One*g3)/g3/g3*exp(-I*g2*g2*omega/4.0/g3);
@@ -250,6 +308,7 @@ void Domain::Tick()
 	if((step+1)%Out_dt==0)
 	{
 		Log("Domain::OnCalculate: Output [%d].",++n_out);
+		this->OnCalculateEndPoint();
 		this->Output(n_out);
 	}
 }

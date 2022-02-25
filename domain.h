@@ -73,10 +73,11 @@ public:
 
 	int tmpCounter=0;
 	int tmpCounter2=0;
-	
+
 	void Run();
 	int  ReadTrajectory();
 	void OnCalculate();
+	void OnCalculateEndPoint();
 	void Tick();
 	void Output(int n);
 	void ReduceBunchSize();

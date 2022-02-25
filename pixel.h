@@ -53,14 +53,16 @@ private:
 	dcom* Ay;
 	dcom* Az;
 
-	//for start/end points
-	dcom A1x[2];
-	dcom A1y[2];
-	dcom A1z[2];
+	//for first term end points
+	dcom* A1x;
+	dcom* A1y;
+	dcom* A1z;
 
 	Domain *p_domain() {return Domain::p_Domain;}; 
 	Pixel(double omg, double ty, double tz, int timebin, Detector* pd);
 	void OnDeposit(Particle* p, int substep=0, int Refine=1);
+	void OnDeposit(Particle* p, Node which);
+	void CleanA1();
 
   	~Pixel();
 

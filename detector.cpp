@@ -81,7 +81,7 @@ Detector::Detector(char * infile): NList("Detector")
 	// number of pixels
 	N_Pixel = N_Omega*N_Theta_Y*N_Theta_Z;
 	// size of pixel objects
-	int Size_P = (N_Pixel*sizeof(Pixel) + sizeof(dcom)*3*N_Time)/1024;
+	int Size_P = (N_Pixel*sizeof(Pixel) + sizeof(dcom)*6*N_Time)/1024;
 
 	 Log("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);
 	DLog("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);

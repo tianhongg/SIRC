@@ -34,21 +34,34 @@ Pixel::Pixel(double omg, double ty, double tz, int timebin, Detector* pd)
 
 	N_Time = timebin;
 
-	Ax = new dcom[N_Time];
-	Ay = new dcom[N_Time];
-	Az = new dcom[N_Time];
+	Ax  = new dcom[N_Time];
+	Ay  = new dcom[N_Time];
+	Az  = new dcom[N_Time];
 
-	A1x[0]=A1x[1]=0.0;
-	A1y[0]=A1y[1]=0.0;
-	A1z[0]=A1z[1]=0.0;
+	A1x = new dcom[N_Time];
+	A1y = new dcom[N_Time];
+	A1z = new dcom[N_Time];
+
 	
 }
 
+void Pixel::CleanA1()
+{
+	for(int i=0;i<N_Time;i++)
+	{
+		A1x[i]=0.0;
+		A1y[i]=0.0;
+		A1z[i]=0.0;
+	}
+}
 
 Pixel::~Pixel()
 {
 	delete[] Ax;
 	delete[] Ay;
 	delete[] Az;
+	delete[] A1x;
+	delete[] A1y;
+	delete[] A1z;
 
 }

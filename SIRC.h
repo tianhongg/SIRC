@@ -25,8 +25,12 @@
 
 #define dcom std::complex<double>
 #define ULONG unsigned long
-#define ErfError 1e-12
 
+enum class Node
+{	
+	Start,
+	End
+};
 
 #include <mpi.h>
 #include <complex>
@@ -45,6 +49,7 @@
 #include "particle.h"
 #include "pixel.h"
 #include "detector.h"
+
 
 
 namespace Constant

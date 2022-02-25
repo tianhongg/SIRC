@@ -387,7 +387,7 @@ void Domain::Output(int n)
 	int k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Ax[i].real()*re;
+			local_A[k++] = (*it)->Ax[i].real()*re+(*it)->A1x[i].real()*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
@@ -400,7 +400,7 @@ void Domain::Output(int n)
 	k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Ax[i].imag()*re;
+			local_A[k++] = (*it)->Ax[i].imag()*re+(*it)->A1x[i].imag()*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
@@ -414,7 +414,7 @@ void Domain::Output(int n)
 	k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Ay[i].real()*re;
+			local_A[k++] = (*it)->Ay[i].real()*re+(*it)->A1y[i].real()*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
@@ -427,7 +427,7 @@ void Domain::Output(int n)
 	k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Ay[i].imag()*re;
+			local_A[k++] = (*it)->Ay[i].imag()*re+(*it)->A1y[i].imag()*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
@@ -441,7 +441,7 @@ void Domain::Output(int n)
 	k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Az[i].real()*re;
+			local_A[k++] = (*it)->Az[i].real()*re+(*it)->A1z[i].real()*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
@@ -454,7 +454,7 @@ void Domain::Output(int n)
 	k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Az[i].imag()*re;
+			local_A[k++] = (*it)->Az[i].imag()*re+(*it)->A1z[i].imag()*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
