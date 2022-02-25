@@ -91,7 +91,7 @@ void Detector::OnDeposit(Particle* p)
 
 void Pixel::OnDeposit(Particle* p, Node which)
 {
-	return;
+
 	int step = which==Node::Start? 0:min(p->NStep-1,p->Current_Step+1);
 
 	double t  = p_domain()->GetTime();
