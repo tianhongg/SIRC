@@ -74,7 +74,7 @@ void Domain::OnCalculateEndPoint()
 
 }
 
-
+// start/end point deposit
 void Detector::OnDeposit(Particle* p, Node which)
 {
 	for(auto it = Pixels.begin(); it!=Pixels.end(); it++)
@@ -82,6 +82,7 @@ void Detector::OnDeposit(Particle* p, Node which)
 }
 
 
+//general integration
 void Detector::OnDeposit(Particle* p)
 {
 	for(auto it = Pixels.begin(); it!=Pixels.end(); it++)
@@ -89,6 +90,8 @@ void Detector::OnDeposit(Particle* p)
 
 }
 
+
+// start/end point deposit
 void Pixel::OnDeposit(Particle* p, Node which)
 {
 
@@ -121,6 +124,7 @@ void Pixel::OnDeposit(Particle* p, Node which)
 
 }	
 
+//general integration
 void Pixel::OnDeposit(Particle* p,int substep, int Refine)
 {	
 
