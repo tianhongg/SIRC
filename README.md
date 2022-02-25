@@ -1,2 +1,3 @@
 # SIRC
-![logo](https://github.com/tianhongg/SIRC/blob/master/logo.png)
+![logo](https://raw.githubusercontent.com/tianhongg/SIRC/main/logo.png)
+
