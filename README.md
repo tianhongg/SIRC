@@ -1,2 +1,2 @@
 # SIRC
-## Simple Incoherent Radiation Calculation 
+![logo](https://github.com/tianhongg/SIRC/blob/master/logo.png)
