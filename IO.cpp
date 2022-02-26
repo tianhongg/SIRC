@@ -24,7 +24,7 @@
 
 // general IO
 
-string return_current_time_and_date()
+string time_and_date()
 {
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -42,7 +42,7 @@ void Log0(bool all, const char * fmt,...)
 
 	const char *fmtn;
 	string str(fmt);
-	str=return_current_time_and_date()+str+"\n";
+	str=time_and_date()+str+"\n";
 
 	fmtn=str.c_str();
 

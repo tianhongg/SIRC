@@ -38,7 +38,6 @@ public:
 	static Domain *p_Domain;
 
 	ULONG Size_P; //size of particle objs
-
 	double BunchXiMax;
 	double BunchXiMin;
 	int N_Time;	//time bin sizes

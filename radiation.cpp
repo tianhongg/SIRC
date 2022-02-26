@@ -37,7 +37,7 @@ void Domain::OnCalculate()
 		Particle* p = *it;
 
 		//start and end point;
-		if(MaxStep>p->start&&IncludePartI)
+		if(IncludePartI&&MaxStep>p->start)
 		{
 			MyDetector->OnDeposit(p, Node::Start);
 			MyDetector->OnDeposit(p, Node::End  );
