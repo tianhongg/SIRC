@@ -295,10 +295,10 @@ int Particle::Load(hid_t file_id, ULONG i)
 
 int WriteHDF5RecordDOUBLE(hid_t file, const char* dataname, int nfields, double *source);
 
-void Domain::Output(int n)
+void Domain::Output()
 {
 
-	Log("Domain::Output...");
+	Log("Domain::Output-------------------------------------");
 
 	// d^2I/domega/dOmega = e^2/(4*pi^2*c); 
 	// here we output  d^2I/domega/dOmega when omega is normalized by laser wavelength 
@@ -308,10 +308,8 @@ void Domain::Output(int n)
 
 	// radius of electron, divided by laser wavelength, then convert to eV/
 	double re = 2.8179403227e-9/(this->lambda_L)/2/Constant::PI*0.51099895e6;
-	re = sqrt(re);
 
 	//output will be  re*|A|^2;
-	// and I prefer to output A.real and A.imag
 
 	hid_t   file, fdataset, fdataspace; 
 	hsize_t  dimsfi[0], dimsf[4]; 
@@ -321,7 +319,7 @@ void Domain::Output(int n)
 	//create file
 	if(Rank==0)
 	{
-		sprintf(fname,"Synchrotron_%05d_.h5",n);
+		sprintf(fname,"Synchrotron_SIRC.h5");
 		Log("Domain::Output: Create File: %s",fname);
 		file = H5Fcreate(fname, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -383,86 +381,79 @@ void Domain::Output(int n)
 	global_A = new double[N_Buffer];
 
 
-	// load data real(Ax)
+	// load data S1
 	int k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Ax[i].real()*re+(*it)->A1x[i].real()*re;
+			local_A[k++] = (*it)->S1[i]*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
-		DLog("Domain::Output: Write Ax.real()");
-    	fdataset = H5Dcreate(file, "Ax_R", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+		 Log("Domain::Output: Write S1 = |Ay|^2+|Az|^2");
+		DLog("Domain::Output: Write S1 = |Ay|^2+|Az|^2");
+    	fdataset = H5Dcreate(file, "S1", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);
 	}
-	// load data imag(Ax)
+	// load data S2
 	k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Ax[i].imag()*re+(*it)->A1x[i].imag()*re;
+			local_A[k++] = (*it)->S2[i]*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
-		DLog("Domain::Output: Write Ax.imag()");
-    	fdataset = H5Dcreate(file, "Ax_I", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+		 Log("Domain::Output: Write S2 = |Ay|^2-|Az|^2");
+		DLog("Domain::Output: Write S2 = |Ay|^2-|Az|^2");
+    	fdataset = H5Dcreate(file, "S2", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);
     }
 
-    // load data real(Ay)
+    // load data S3
 	k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Ay[i].real()*re+(*it)->A1y[i].real()*re;
+			local_A[k++] = (*it)->S3[i]*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
-	{
-		DLog("Domain::Output: Write Ay.real()");
-    	fdataset = H5Dcreate(file, "Ay_R", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	{	 
+		 Log("Domain::Output: Write S3 = 2Re(AyAz*)");
+		DLog("Domain::Output: Write S3 = 2Re(AyAz*)");
+    	fdataset = H5Dcreate(file, "S3", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);
 	}
-	// load data imag(Ay)
+	// load data S4
 	k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Ay[i].imag()*re+(*it)->A1y[i].imag()*re;
+			local_A[k++] = (*it)->S4[i]*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
-		DLog("Domain::Output: Write Ay.imag()");
-    	fdataset = H5Dcreate(file, "Ay_I", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+		 Log("Domain::Output: Write S4 =-2Im(AyAz*)");
+		DLog("Domain::Output: Write S4 =-2Im(AyAz*)");
+    	fdataset = H5Dcreate(file, "S4", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);
     }
 
-    // load data real(Az)
+    // load data I
 	k = 0;
 	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
 		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Az[i].real()*re+(*it)->A1z[i].real()*re;
+			local_A[k++] = (*it)->II[i]*re;
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
-		DLog("Domain::Output: Write Az.real()");
-    	fdataset = H5Dcreate(file, "Az_R", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+		 Log("Domain::Output: Write II = |Ax|^2+|Ay|^2+|Az|^2");
+		DLog("Domain::Output: Write II = |Ax|^2+|Ay|^2+|Az|^2");
+    	fdataset = H5Dcreate(file, "II", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);
 	}
-	// load data imag(Az)
-	k = 0;
-	for(auto it = MyDetector->Pixels.begin(); it!=MyDetector->Pixels.end(); it++)
-		for(int i=0; i<N_Time; i++)
-			local_A[k++] = (*it)->Az[i].imag()*re+(*it)->A1z[i].imag()*re;
-	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-	if(Rank==0)
-	{
-		DLog("Domain::Output: Write Az.imag()");
-    	fdataset = H5Dcreate(file, "Az_I", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-    	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
-    	status = H5Dclose(fdataset);
-    }
+	
 
     //close
 	if(Rank==0)
@@ -475,6 +466,8 @@ void Domain::Output(int n)
 
 	delete[] local_A;
 	delete[] global_A; 
+
+	Log("Domain::Output-------------------------------------");
 
 }
 

@@ -51,42 +51,35 @@ private:
   	double lambda_L;
 
   	int MaxStep;
-  	int Out_dt;
   	int step;
-  	int Refine; //step refinement; int
   	
   	int MovingFrame;
   	int InputType;
   	int Normalization;
   	int IntegrateOrder;
+  	int IncludePartI;
 
   	list<Particle*> Particles;
   	Detector* MyDetector;
 
   	//misc: for tic function;
-  	int n_out;
 	int n_tick;
-	double d_tick;
+	int s_tick;
 	chrono::time_point<std::chrono::system_clock> tic;
 
 public: 
-
-	int tmpCounter=0;
-	int tmpCounter2=0;
-
 	void Run();
 	int  ReadTrajectory();
 	void OnCalculate();
-	void OnCalculateEndPoint();
 	void Tick();
-	void Output(int n);
+	void Output();
 	void ReduceBunchSize();
 	void TagParticles();
 
 	double GetDt() {return dt;}
 	double GetTime() {return dt*step;}
 	int    GetStep()   {return step;}
-	int    GetRefine() {return Refine;}
+	int    GetMaxStep()   {return MaxStep;}
 	int    GetIntegrateOrder() {return IntegrateOrder;}
 	bool   IsMovingFrame()   {return MovingFrame   == 1? true:false;}
 	bool   IfNormalization() {return Normalization == 1? true:false;}

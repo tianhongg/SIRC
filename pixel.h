@@ -48,21 +48,21 @@ private:
 	// number of time_bin
 	int N_Time;
 
-	
 	dcom* Ax;
 	dcom* Ay;
 	dcom* Az;
 
-	//for first term end points
-	dcom* A1x;
-	dcom* A1y;
-	dcom* A1z;
+	//for stock parameters
+	double* S1;
+	double* S2;
+	double* S3;
+	double* S4;
+	double* II;
 
 	Domain *p_domain() {return Domain::p_Domain;}; 
 	Pixel(double omg, double ty, double tz, int timebin, Detector* pd);
-	void OnDeposit(Particle* p, int substep=0, int Refine=1);
+	void OnDeposit(Particle* p);
 	void OnDeposit(Particle* p, Node which);
-	void CleanA1();
 
   	~Pixel();
 

@@ -62,5 +62,6 @@ public:
 	Domain *p_domain() {return Domain::p_Domain;}; 
 	void OnDeposit(Particle* p);
 	void OnDeposit(Particle* p, Node which);
+	void OnGatherA();
 
 };

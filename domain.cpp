@@ -36,14 +36,14 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 
 	AddEntry((char*)"TStep", 			&dt,			1.0);
 	AddEntry((char*)"MaxSteps",  		&MaxStep,		10);
-	AddEntry((char*)"StepRefine",  		&Refine,		1);
 	AddEntry((char*)"Wavelength", 		&lambda_L,		1.0);
 	AddEntry((char*)"ReadType",   		&ReadType,		1);
-	AddEntry((char*)"OutputInterval",  	&Out_dt,		1);
 	AddEntry((char*)"MovingFrame",  	&MovingFrame,	1);
 	AddEntry((char*)"InputType",  		&InputType,		1);
 	AddEntry((char*)"Normalization",  	&Normalization,	1);
 	AddEntry((char*)"IntegrateOrder",  	&IntegrateOrder, 2);
+	AddEntry((char*)"IncludePartI",  	&IncludePartI,   1);
+	
 	
 	Log("Domain: Read Parameters From .ini File...");
 	FILE *p_File = fopen(infile,"rt");
@@ -54,7 +54,6 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	}
 	fclose(p_File); 
 
-	Refine = max(1,Refine);
 
 	if(IntegrateOrder<1) IntegrateOrder=1;
 	if(IntegrateOrder>2) IntegrateOrder=2;
@@ -63,10 +62,11 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	if(Normalization)
 		dt *= 2*Constant::PI;
 
+
 	//for the tick
 	step = 0;
-	d_tick = MaxStep/200.01;
-	n_out=n_tick=0;
+	n_tick=0;
+	s_tick=0;
 
 }
 
@@ -94,10 +94,12 @@ void Domain::Run()
 	Log("Domain::Run: Start Calculation");
 	this->OnCalculate();
 
+	Log("Domain::Run: Do Output");
+	this->Output();
+
 	Log("Domain::Run: Done!");
 
 }
-
 
 
 void Domain::ReduceBunchSize()

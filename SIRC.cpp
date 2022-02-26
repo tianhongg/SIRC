@@ -43,7 +43,6 @@ int main(int argc, char** argv)
 		GlobalVars::LogFile = fopen(sFile, "w");
 	#endif
 
-
 	Log("=============================================");
 	Log(" 	   ____ ___ ____   ____ 	");
 	Log(" 	  / ___|_ _|  _ \\ / ___| 	");
@@ -64,7 +63,6 @@ int main(int argc, char** argv)
 	// Log("%f" ,domain->tmpCounter*1.0/domain->tmpCounter2);
 
 	delete domain;
-
 
 	Log("==== SIRC: Bye!");
 	MPI_Finalize();

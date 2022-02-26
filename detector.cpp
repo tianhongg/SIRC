@@ -81,7 +81,7 @@ Detector::Detector(char * infile): NList("Detector")
 	// number of pixels
 	N_Pixel = N_Omega*N_Theta_Y*N_Theta_Z;
 	// size of pixel objects
-	int Size_P = (N_Pixel*sizeof(Pixel) + sizeof(dcom)*6*N_Time)/1024;
+	int Size_P = (N_Pixel*sizeof(Pixel) + sizeof(dcom)*8*N_Time)/1024;
 
 	 Log("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);
 	DLog("Detector: N_Omega: [%d]; N_Theta_Y: [%d]; N_Theta_Z: [%d]",N_Omega, N_Theta_Y, N_Theta_Z);
@@ -135,6 +135,25 @@ Detector::Detector(char * infile): NList("Detector")
 			}
 		}
 
+	}
+}
+
+
+void Detector::OnGatherA()
+{
+	for(auto it = Pixels.begin(); it!=Pixels.end(); it++)
+	{
+		Pixel* p = (*it);
+		for(int t=0; t<N_Time; t++)
+		{
+			p->S1[t] += norm(p->Ay[t]) + norm(p->Az[t]);
+			p->S2[t] += norm(p->Ay[t]) - norm(p->Az[t]);
+			p->S3[t] +=  2.0*real((p->Ay[t])*conj(p->Az[t]));
+			p->S4[t] += -2.0*imag((p->Ay[t])*conj(p->Az[t]));
+			p->II[t] += norm(p->Ax[t]) + norm(p->Ay[t]) + norm(p->Az[t]);
+			p->Ax[t]=p->Ay[t]=p->Az[t]=0.0;
+		}
+			
 	}
 
 }

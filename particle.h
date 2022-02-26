@@ -56,12 +56,11 @@ public:
 	double q2m;
 	int type;
 
-	int Load(hid_t file_id, ULONG i);
+	int  Load(hid_t file_id, ULONG i);
 	void Normalize();
 	bool IsInFrame(int step);
 
 	Particle();
-
   	virtual ~Particle();
 
 
