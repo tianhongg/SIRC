@@ -205,30 +205,6 @@ dcom ComputeA(double f1, double f2, double f3, double g1, double g2, double g3, 
 	return A;
 }
 
-//=====================================================================
-void Domain::Tick()
-{
-	s_tick++;
-	int N = MaxStep*Particles.size();
-	double d_tick = N/200.01;
-	//tick
-	if(s_tick>=(n_tick)*d_tick)
-	{
-		n_tick++;
-		chrono::time_point<std::chrono::system_clock> toc = chrono::system_clock::now();
-		chrono::milliseconds diff = std::chrono::duration_cast<std::chrono::milliseconds>(toc - tic);
-   		double delay = diff.count() / 1000.0;
 
-   		string fmt = "Domain::OnCalculate: [%5.1f%%] Time[%6.2f min "; 
-
-   		double prec = (s_tick+1.0)/N*100;
-   		int n = prec*20.0/100.0;
-   		for(int i=0; i<=n;	i++) fmt+="\u2588";
-   		for(int i=0; i<20-n;i++) fmt+="\u2591";
-   		fmt+=" %6.2f min]"; 
-   		 Log(fmt.c_str(), prec, delay/60, delay/60/prec*(100-prec));
-	}
-
-}
 
 

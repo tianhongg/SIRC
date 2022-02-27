@@ -25,6 +25,19 @@
 #define ELECTRON 0
 #define ION 1
 
+/*
+	Start of Traj
+	steps	[0] [1] [2]
+	traj_0   o   o   o   o   o   o   o   o   o   o   o
+	traj_1       o   o   o   o   o   o
+	traj_2               o   o   o   o   o   o   o   o
+
+	traj_0 start =0;
+	traj_1 start =1;
+	traj_2 start =3;
+	MaxStep = 11;
+*/
+
 class Particle
 {
 	friend class Domain;
@@ -36,8 +49,6 @@ private:
 
 	Domain *p_domain() {return Domain::p_Domain;}; 
 
-	
-	
 	double weight;     // how many real unit charges;
 
 	int start;	   //trajectory start step;

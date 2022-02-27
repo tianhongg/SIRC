@@ -55,7 +55,7 @@ void LogDebug(const char * fmt,...)
     fflush(GlobalVars::LogFile);
 }
 
-void LogDebugII(const char * fmt, va_list args)
+void LogDebugA(const char * fmt, va_list args)
 {
 
 	#ifndef _DEBUG
@@ -84,12 +84,10 @@ void Log0(bool all, const char * fmt,...)
     va_start( arglist, fmt );
     vprintf( fmtn, arglist);
     va_start( arglist, fmt );
-    LogDebugII(fmt, arglist);
+    LogDebugA(fmt, arglist);
     va_end(arglist);
     
 }
-
-
 
 
 int Domain::ReadTrajectory()
@@ -119,7 +117,17 @@ int Domain::ReadTrajectory()
 	herr_t      status; 
 
 	file_id = H5Fopen (str.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-	status  = H5Gget_num_objs(file_id, &size_p);
+	if(file_id<0)
+	{
+		ALog("Domain::ReadTrajectory: Cannot Open the File: [%s]",str.c_str());
+		return 1;
+	}
+	status = H5Gget_num_objs(file_id, &size_p);
+	if(status<0)
+	{
+		ALog("Domain::ReadTrajectory: Cannot Get Objects: [%s]",str.c_str());
+		return 1;
+	}
 
 	// number of particles to read
 	int N_Processor;
@@ -133,7 +141,7 @@ int Domain::ReadTrajectory()
 		N_read = size_p/N_Processor;
 		if(N_read<1)
 		{
-			Log("Domain::ReadTrajectory: Too Many Cores, Not Enough Particles");
+			ALog("Domain::ReadTrajectory: Too Many Cores, Not Enough Particles");
 			return 1;
 		}
 		Idx_read = Rank*N_read;
@@ -300,8 +308,6 @@ int Particle::Load(hid_t file_id, ULONG i)
 		return 1;
 	}
 
-	// ALog("Particle starting step, %d",(this->start));
-
 	this->Normalize();
 
 
@@ -350,18 +356,18 @@ void Domain::Output()
 		WriteHDF5RecordDOUBLE(file, "Energy[eV]", dimsfi[0], Axis);
 		delete[] Axis;
 		//
-		Log("Domain::Output: Write Theta_Y_Bin");
+		Log("Domain::Output: Write Theta_Y_Bin, Unit Radian...");
 		dimsfi[0] = MyDetector->N_Theta_Y;
 		WriteHDF5RecordDOUBLE(file, "ThetaY", dimsfi[0], MyDetector->ThetaYBin);
 		//
-		Log("Domain::Output: Write Theta_Z_Bin");
+		Log("Domain::Output: Write Theta_Z_Bin, Unit Radian...");
 		dimsfi[0] = MyDetector->N_Theta_Z;
 		WriteHDF5RecordDOUBLE(file, "ThetaZ", dimsfi[0], MyDetector->ThetaZBin);
 
 		//
 		if(N_Time>1)
 		{
-			Log("Domain::Output: Write Time_Bin Unit fs...");
+			Log("Domain::Output: Write Time_Bin, Unit fs...");
 			Axis = new double[MyDetector->N_Time];
 
 			double dxi = (BunchXiMax-BunchXiMin)/(N_Time-1);
@@ -477,6 +483,33 @@ void Domain::Output()
 	delete[] global_A; 
 
 	Log("Domain::Output-------------------------------------");
+
+}
+
+
+//=====================================================================
+void Domain::Tick()
+{
+	s_tick++;
+	int N = MaxStep*Particles.size();
+	double d_tick = N/200.01;
+	//tick
+	if(s_tick>=(n_tick)*d_tick)
+	{
+		n_tick++;
+		chrono::time_point<std::chrono::system_clock> toc = chrono::system_clock::now();
+		chrono::milliseconds diff = std::chrono::duration_cast<std::chrono::milliseconds>(toc - tic);
+   		double delay = diff.count() / 1000.0;
+
+   		string fmt = "Domain::OnCalculate: [%5.1f%%] Time[%6.2f min "; 
+
+   		double prec = (s_tick+1.0)/N*100;
+   		int n = prec*30.0/100.0;
+   		for(int i=0; i<=n;	i++) fmt+="\u2588";
+   		for(int i=0; i<30-n;i++) fmt+="\u2591";
+   		fmt+=" %6.2f min]"; 
+   		 Log(fmt.c_str(), prec, delay/60, delay/60/prec*(100-prec));
+	}
 
 }
 
