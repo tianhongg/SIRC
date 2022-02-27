@@ -112,7 +112,7 @@ void Domain::ReduceBunchSize()
 	BunchXiMin = bmin;
 	BunchXiMax = bmax;
 	
-	 Log("Domain::ReduceBunchSize(): Bunch Size (kp) in Moving Frame: [%.2f, %.2f].",bmin,bmax);
+	 Log("Domain::ReduceBunchSize(): Bunch Size (k^-1) in Moving Frame: [%.2f, %.2f].",bmin,bmax);
 }
 
 
