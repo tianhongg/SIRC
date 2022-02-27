@@ -1,0 +1,6 @@
+Log file created.
+Domain::ReadTrajectory: Reading [1] Trajectories; Range [0 -> 0]
+Domain::ReadTrajectory: Estimated Size of Particle Data: [468 Kilobytes]
+Particle::Load: Reading Trajectory [0]
+Particle::Load: Particle [0] Total Steps [10129]
+Domain::ReadTrajectory: Size of Particle Data: [474 Kilobytes]

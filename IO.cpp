@@ -29,27 +29,10 @@ string time_and_date()
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
-    ss<<"[";
+    ss<<"[R";
     ss<<setfill('0')<<setw(4)<<GlobalVars::Rank;
     ss << std::put_time(std::localtime(&in_time_t), "][%H:%M:%S] ");
     return ss.str();
-}
-
-void Log0(bool all, const char * fmt,...)
-{
-
-	if(!all && GlobalVars::Rank>0) return;
-
-	const char *fmtn;
-	string str(fmt);
-	str=time_and_date()+str+"\n";
-
-	fmtn=str.c_str();
-
-	va_list arglist;
-    va_start( arglist, fmt );
-    vprintf( fmtn, arglist);
-    va_end(arglist);
 }
 
 void LogDebug(const char * fmt,...)
@@ -72,6 +55,42 @@ void LogDebug(const char * fmt,...)
     fflush(GlobalVars::LogFile);
 }
 
+void LogDebugII(const char * fmt, va_list args)
+{
+
+	#ifndef _DEBUG
+		return;
+	#endif
+	const char *fmtn;
+	string str(fmt);
+	str+="\n";
+	fmtn=str.c_str();
+    vfprintf(GlobalVars::LogFile,fmtn, args);
+    fflush(GlobalVars::LogFile);
+}
+
+void Log0(bool all, const char * fmt,...)
+{
+
+	if(!all && GlobalVars::Rank>0) return;
+
+	const char *fmtn;
+	string str(fmt);
+	str=time_and_date()+str+"\n";
+
+	fmtn=str.c_str();
+
+	va_list arglist;
+    va_start( arglist, fmt );
+    vprintf( fmtn, arglist);
+    va_start( arglist, fmt );
+    LogDebugII(fmt, arglist);
+    va_end(arglist);
+    
+}
+
+
+
 
 int Domain::ReadTrajectory()
 {
@@ -92,7 +111,7 @@ int Domain::ReadTrajectory()
 	str+=string(filename);
 
 	Log("Domain::ReadTrajectory: Read Trajectory Type [%d]", ReadType);
-	DLog("Domain::ReadTrajectory: Reading Trajectories From File: [%s]",str.c_str());
+	Log("Domain::ReadTrajectory: Reading Trajectories From File: [%s]",str.c_str());
 
 	// open file 
 	hid_t       file_id;  
@@ -126,10 +145,7 @@ int Domain::ReadTrajectory()
 	}
 
 	ALog("Domain::ReadTrajectory: Reading [%d] Trajectories; Range [%d -> %d]", N_read, Idx_read, Idx_read+N_read-1);
-	DLog("Domain::ReadTrajectory: Reading [%d] Trajectories; Range [%d -> %d]", N_read, Idx_read, Idx_read+N_read-1);
-
 	ALog("Domain::ReadTrajectory: Estimated Size of Particle Data: [%d Kilobytes]", (sizeof(Particle)+sizeof(Vec3)*2*MaxStep)*N_read/1024);
-	DLog("Domain::ReadTrajectory: Estimated Size of Particle Data: [%d Kilobytes]", (sizeof(Particle)+sizeof(Vec3)*2*MaxStep)*N_read/1024);
 
 	for(ULONG i=0; i<N_read; i++)
 	{
@@ -145,7 +161,6 @@ int Domain::ReadTrajectory()
 	status = H5Fclose(file_id);
 
 	ALog("Domain::ReadTrajectory: Size of Particle Data: [%d Kilobytes]", Size_P/1024);
-	DLog("Domain::ReadTrajectory: Size of Particle Data: [%d Kilobytes]", Size_P/1024);
 
 	return 0;
 
@@ -171,7 +186,6 @@ int Particle::Load(hid_t file_id, ULONG i)
 	if(H5Gget_info_by_name( file_id, particle_name, &group_info, H5P_DEFAULT )<0)
 	{
 		ALog("Failed at Particle::Load::H5Gget_info_by_name()");
-		DLog("Failed at Particle::Load::H5Gget_info_by_name()");
 		return 1;
 	}
 
@@ -181,7 +195,6 @@ int Particle::Load(hid_t file_id, ULONG i)
 	if(H5Gget_num_objs(group_id,&num_obj)<0)
 	{
 		ALog("Failed at Particle::Load::H5Gget_num_objs()");
-		DLog("Failed at Particle::Load::H5Gget_num_objs()");
 		return 1;
 	}
 
@@ -204,6 +217,9 @@ int Particle::Load(hid_t file_id, ULONG i)
 	this->NStep = nt;
 	Position = new Vec3[nt];
 	Velocity = new Vec3[nt];
+
+	Log("Particle::Load: Data Buffer Size Needed [%d Kilobytes]:", nt*sizeof(double)*2/1024);
+
 
 	//read x
 	if(H5Dread(dataset_id,H5T_NATIVE_DOUBLE,H5S_ALL,H5S_ALL,H5P_DEFAULT,databuff)<0)
@@ -324,7 +340,7 @@ void Domain::Output()
 		file = H5Fcreate(fname, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
 		//
-		DLog("Domain::Output: Write E_Bin, Unit eV...");
+		Log("Domain::Output: Write E_Bin, Unit eV...");
 		double* Axis = new double[MyDetector->N_Omega];
 
 		for(ULONG i=0; i<MyDetector->N_Omega; i++)
@@ -334,18 +350,18 @@ void Domain::Output()
 		WriteHDF5RecordDOUBLE(file, "Energy[eV]", dimsfi[0], Axis);
 		delete[] Axis;
 		//
-		DLog("Domain::Output: Write Theta_Y_Bin");
+		Log("Domain::Output: Write Theta_Y_Bin");
 		dimsfi[0] = MyDetector->N_Theta_Y;
 		WriteHDF5RecordDOUBLE(file, "ThetaY", dimsfi[0], MyDetector->ThetaYBin);
 		//
-		DLog("Domain::Output: Write Theta_Z_Bin");
+		Log("Domain::Output: Write Theta_Z_Bin");
 		dimsfi[0] = MyDetector->N_Theta_Z;
 		WriteHDF5RecordDOUBLE(file, "ThetaZ", dimsfi[0], MyDetector->ThetaZBin);
 
 		//
 		if(N_Time>1)
 		{
-			DLog("Domain::Output: Write Time_Bin Unit fs...");
+			Log("Domain::Output: Write Time_Bin Unit fs...");
 			Axis = new double[MyDetector->N_Time];
 
 			double dxi = (BunchXiMax-BunchXiMin)/(N_Time-1);
@@ -367,16 +383,14 @@ void Domain::Output()
 		
 	}
 	//gather data;
-	 Log("Domain::Output: Gather Data...");
-	DLog("Domain::Output: Gather Data...");
+	Log("Domain::Output: Gather Data...");
 
 	//declare data
 	double* local_A; 
 	double* global_A; 
 	int N_Buffer = (MyDetector->N_Omega)*(MyDetector->N_Theta_Y)*(MyDetector->N_Theta_Z)*(MyDetector->N_Time);
 
-	DLog("Domain::Output: Data Buffer Size Needed [%d Kilobytes]:", N_Buffer*sizeof(double)*2/1024);
-
+	Log("Domain::Output: Data Buffer Size Needed [%d Kilobytes]:", N_Buffer*sizeof(double)*2/1024);
 	local_A  = new double[N_Buffer];
 	global_A = new double[N_Buffer];
 
@@ -389,8 +403,7 @@ void Domain::Output()
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
-		 Log("Domain::Output: Write S1 = |Ay|^2+|Az|^2");
-		DLog("Domain::Output: Write S1 = |Ay|^2+|Az|^2");
+		Log("Domain::Output: Write S1 = |Ay|^2+|Az|^2");
     	fdataset = H5Dcreate(file, "S1", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);
@@ -403,8 +416,7 @@ void Domain::Output()
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
-		 Log("Domain::Output: Write S2 = |Ay|^2-|Az|^2");
-		DLog("Domain::Output: Write S2 = |Ay|^2-|Az|^2");
+		Log("Domain::Output: Write S2 = |Ay|^2-|Az|^2");
     	fdataset = H5Dcreate(file, "S2", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);
@@ -418,8 +430,7 @@ void Domain::Output()
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{	 
-		 Log("Domain::Output: Write S3 = 2Re(AyAz*)");
-		DLog("Domain::Output: Write S3 = 2Re(AyAz*)");
+		Log("Domain::Output: Write S3 = 2Re(AyAz*)");
     	fdataset = H5Dcreate(file, "S3", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);
@@ -432,8 +443,7 @@ void Domain::Output()
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
-		 Log("Domain::Output: Write S4 =-2Im(AyAz*)");
-		DLog("Domain::Output: Write S4 =-2Im(AyAz*)");
+		Log("Domain::Output: Write S4 =-2Im(AyAz*)");
     	fdataset = H5Dcreate(file, "S4", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);
@@ -447,8 +457,7 @@ void Domain::Output()
 	MPI_Reduce(local_A, global_A, N_Buffer, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	if(Rank==0)
 	{
-		 Log("Domain::Output: Write II = |Ax|^2+|Ay|^2+|Az|^2");
-		DLog("Domain::Output: Write II = |Ax|^2+|Ay|^2+|Az|^2");
+		Log("Domain::Output: Write II = |Ax|^2+|Ay|^2+|Az|^2");
     	fdataset = H5Dcreate(file, "II", H5T_IEEE_F64LE, fdataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     	status = H5Dwrite(fdataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, global_A);
     	status = H5Dclose(fdataset);

@@ -94,7 +94,7 @@ void Domain::Run()
 	Log("Domain::Run: Start Calculation");
 	this->OnCalculate();
 
-	Log("Domain::Run: Do Output");
+	Log("Domain::Run: On Output");
 	this->Output();
 
 	Log("Domain::Run: Done!");
@@ -113,8 +113,6 @@ void Domain::ReduceBunchSize()
 	BunchXiMax = bmax;
 	
 	 Log("Domain::ReduceBunchSize(): Bunch Size (kp) in Moving Frame: [%.2f, %.2f].",bmin,bmax);
-	DLog("Domain::ReduceBunchSize(): Bunch Size (kp) in Moving Frame: [%.2f, %.2f].",bmin,bmax);
-
 }
 
 

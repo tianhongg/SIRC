@@ -223,12 +223,10 @@ void Domain::Tick()
 
    		double prec = (s_tick+1.0)/N*100;
    		int n = prec*20.0/100.0;
-   		for(int i=0; i<n;	i++) fmt+="*";
-   		for(int i=0; i<20-n;i++) fmt+="-";
+   		for(int i=0; i<=n;	i++) fmt+="\u2588";
+   		for(int i=0; i<20-n;i++) fmt+="\u2591";
    		fmt+=" %6.2f min]"; 
-   		
    		 Log(fmt.c_str(), prec, delay/60, delay/60/prec*(100-prec));
-   		DLog(fmt.c_str(), prec, delay/60, delay/60/prec*(100-prec)); 
 	}
 
 }

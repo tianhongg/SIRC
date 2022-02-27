@@ -41,6 +41,7 @@ int main(int argc, char** argv)
 		char sFile[128];
 		sprintf(sFile, "log_r_%d.dat", Rank);
 		GlobalVars::LogFile = fopen(sFile, "w");
+		DLog("Log file created.");
 	#endif
 
 	Log("=============================================");
@@ -54,9 +55,7 @@ int main(int argc, char** argv)
 	Log("==== Copyright: (C) 2022 by Tianhong Wang.");
 	Log("==== Number of Total Ranks: [%d].",N_processor);
 	Log("=============================================\n");
-	DLog("Log file created.");
-
-
+	
 	Domain *domain = new Domain((char*)"SIRC.ini",Rank);
 	domain-> Run();
 	
