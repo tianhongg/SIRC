@@ -27,7 +27,7 @@ Pixel::Pixel(double omg, double ty, double tz, int timebin, Detector* pd)
 	theta_z = tz;
 
 	MyDetector = pd;
-	double tmp =(1.0+sin(ty)*sin(ty)*sin(tz)*sin(tz));
+	double tmp =sqrt(1.0+sin(ty)*sin(ty)*sin(tz)*sin(tz));
 	n.x = cos(ty)*cos(tz)/tmp;
 	n.y = 		  sin(ty)/tmp;
 	n.z =		  sin(tz)/tmp;
