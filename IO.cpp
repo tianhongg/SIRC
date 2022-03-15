@@ -488,6 +488,15 @@ void Domain::Output()
 
 
 //=====================================================================
+
+double Domain::RunTimeInSec()
+{
+	chrono::time_point<std::chrono::system_clock> toc = chrono::system_clock::now();
+	chrono::milliseconds diff = std::chrono::duration_cast<std::chrono::milliseconds>(toc - tic);
+   	double delay = diff.count() / 1000.0;
+   	return delay;
+}
+	
 void Domain::Tick()
 {
 	s_tick++;
@@ -497,12 +506,8 @@ void Domain::Tick()
 	if(s_tick>=(n_tick)*d_tick)
 	{
 		n_tick++;
-		chrono::time_point<std::chrono::system_clock> toc = chrono::system_clock::now();
-		chrono::milliseconds diff = std::chrono::duration_cast<std::chrono::milliseconds>(toc - tic);
-   		double delay = diff.count() / 1000.0;
-
+		double delay = RunTimeInSec();
    		string fmt = "Domain::OnCalculate: [%5.1f%%] Time[%6.2f min "; 
-
    		double prec = (s_tick+1.0)/N*100;
    		int n = prec*30.0/100.0;
    		for(int i=0; i<=n;	i++) fmt+="\u2588";
@@ -510,7 +515,6 @@ void Domain::Tick()
    		fmt+=" %6.2f min]"; 
    		 Log(fmt.c_str(), prec, delay/60, delay/60/prec*(100-prec));
 	}
-
 }
 
 

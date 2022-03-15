@@ -50,6 +50,20 @@ public:
 	}
 
 	//--------------------------
+	Vec3 operator-(double d)
+	{
+		Vec3 tmp(x-d, y-d, z-d);
+		return tmp;
+	}
+
+	//--------------------------
+	Vec3 operator+(double d)
+	{
+		Vec3 tmp(x+d, y+d, z+d);
+		return tmp;
+	}
+
+	//--------------------------
 	Vec3 operator*(double d)
 	{
 		Vec3 tmp(x*d, y*d, z*d);

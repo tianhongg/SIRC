@@ -51,6 +51,7 @@ private:
 
   	int MaxStep;
   	int step;
+  	int Refine;
   	
   	int MovingFrame;
   	int InputType;
@@ -79,10 +80,12 @@ public:
 	double GetTime() {return dt*step;}
 	int    GetStep()   {return step;}
 	int    GetMaxStep()   {return MaxStep;}
+	int    GetRefine()	{return Refine;}
 	int    GetIntegrateOrder() {return IntegrateOrder;}
 	bool   IsMovingFrame()   {return MovingFrame   == 1? true:false;}
 	bool   IfNormalization() {return Normalization == 1? true:false;}
 	bool   IfInputIsP() {return InputType == 1? true:false;}
+	double RunTimeInSec();
 
 	Domain(char *infile, int rank);  
 	~Domain();       

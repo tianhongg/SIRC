@@ -36,6 +36,7 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 
 	AddEntry((char*)"TStep", 			&dt,			1.0);
 	AddEntry((char*)"MaxSteps",  		&MaxStep,		10);
+	AddEntry((char*)"Refine",			&Refine, 		1);
 	AddEntry((char*)"Wavelength", 		&lambda_L,		1.0);
 	AddEntry((char*)"ReadType",   		&ReadType,		1);
 	AddEntry((char*)"MovingFrame",  	&MovingFrame,	1);
@@ -55,13 +56,26 @@ Domain::Domain (char * infile, int rank) : NList("Domain")
 	fclose(p_File); 
 
 
-	if(IntegrateOrder<1) IntegrateOrder=1;
-	if(IntegrateOrder>2) IntegrateOrder=2;
+	Refine = max(1,Refine);
+	if(Refine>1)
+	{
+		Refine=ceil(Refine/2.0)*2;
+		Log("Domain: Stepsize Refinement: [%d]; Cubic Interp Will be Used...",Refine);
+	}
+	else
+	{
+		Log("Domain: No Stepsize Refinement...");
+	}
+
+	IntegrateOrder=max(1,min(IntegrateOrder,2));
+
+
+	IntegrateOrder = 1;
+	Log("Domain: Integrate Order = [1] is Fixed in Current Version...");
 
 	//normalize
 	if(Normalization)
 		dt *= 2*Constant::PI;
-
 
 	//for the tick
 	step = 0;
@@ -98,6 +112,7 @@ void Domain::Run()
 	this->Output();
 
 	Log("Domain::Run: Done!");
+   	Log("Domain::Run: Total Runtime[%6.2f min]", RunTimeInSec()/60);
 
 }
 

@@ -62,6 +62,7 @@ private:
 	Domain *p_domain() {return Domain::p_Domain;}; 
 	Pixel(double omg, double ty, double tz, int timebin, Detector* pd);
 	void OnDeposit(Particle* p);
+	void OnDeposit(Particle* p, int R);
 	void OnDeposit(Particle* p, Node which);
 
   	~Pixel();
